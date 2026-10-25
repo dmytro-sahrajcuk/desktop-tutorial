@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industrial Production Calculator Pro</title>
+    <style>
+        :root {
+        --bg-color: #090a0f;
+        --card-bg: #10141c;
+        --card-inner: #181f2c;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --success: #059669;
+        --warning: #d97706;
+        --danger: #dc2626;
+        --text-main: #e2e8f0;
+        --text-muted: #64748b;
+        --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace, 'Segoe UI', Arial, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 15px; line-height: 1.4; }
+    
+    .top-ctrl-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: var(--card-bg); padding: 10px 15px; border-radius: 3px; border: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+    .lang-switcher, .currency-switcher { display: flex; gap: 3px; align-items: center; }
+    .lang-btn, .curr-btn { background: var(--card-inner); border: 1px solid var(--border); color: var(--text-muted); padding: 4px 10px; border-radius: 2px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.1s; }
+    .lang-btn.active, .curr-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    .currency-rates-panel { display: flex; gap: 10px; align-items: center; background: var(--card-bg); padding: 8px 12px; border-radius: 3px; border: 1px solid var(--border); margin-bottom: 12px; flex-wrap: wrap; }
+    .currency-rate-cell { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: bold; color: var(--text-muted); }
+    .currency-rate-cell input { width: 60px; background: var(--card-inner); border: 1px solid var(--border); color: #fff; padding: 3px 5px; border-radius: 2px; text-align: right; font-weight: bold; font-size: 11px; }
+
+    .mode-switcher { display: flex; gap: 6px; margin-bottom: 15px; justify-content: center; }
+    .mode-btn { background: var(--card-bg); color: var(--text-muted); border: 1px solid var(--border); padding: 8px 16px; border-radius: 3px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.1s; }
+    .mode-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    .history-panel { background: var(--card-bg); border: 1px solid var(--border); padding: 10px; border-radius: 3px; margin-bottom: 15px; }
+    .history-title { font-size: 12px; font-weight: bold; color: var(--text-main); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .history-list { display: flex; gap: 6px; flex-wrap: wrap; list-style: none; }
+    .history-btn { background: var(--card-inner); border: 1px solid var(--border); color: #fff; padding: 4px 10px; border-radius: 2px; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.1s; user-select: none; }
+    .history-btn:hover { border-color: var(--primary); }
+
+    /* --- СТРУКТУРНАЯ СЕТКА ШАПКИ --- */
+.header-area { 
+    margin-bottom: 10px; 
+    background: var(--card-bg); 
+    padding: 10px; 
+    border-radius: 3px; 
+    border: 1px solid var(--border); 
+}
+    .title-container { text-align: center; margin-bottom: 15px; }
+    .title-input { background: transparent; border: none; border-bottom: 1px solid var(--primary); color: #fff; font-size: 20px; font-weight: bold; text-align: center; width: 100%; max-width: 550px; padding: 4px; }
+    .title-input:focus { outline: none; border-color: var(--success); }
+    
+    .company-grid { display: flex; gap: 15px; max-width: 1100px; margin: 0 auto; text-align: left; flex-wrap: wrap; }
+    .comp-cell { flex: 1 1 200px; background: var(--card-inner); border: 1px solid var(--border); padding: 6px 8px; border-radius: 2px; }
+    .comp-cell label { display: block; font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
+    .comp-cell input { background: transparent; border: none; color: #fff; font-size: 12px; width: 100%; font-weight: bold; }
+    .comp-cell input:focus { outline: none; }
+
+    /* КАЛЬКУЛЯТОР */
+    .widget-calc { position: fixed; top: 120px; right: 55px; width: 300px; background: var(--card-bg); border: 1px solid var(--primary); border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.9); z-index: 9999; display: none; padding: 12px; }
+    .wcalc-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; cursor: move; color: var(--text-main); font-size: 12px; font-weight: bold; user-select: none; }
+    .wcalc-screen-box { background: #000; border: 1px solid var(--border); border-radius: 2px; padding: 6px; margin-bottom: 8px; }
+    .wcalc-subscreen { font-size: 10px; color: var(--text-muted); text-align: right; min-height: 14px; font-family: monospace; overflow: hidden; }
+    .wcalc-screen { width: 100%; background: transparent; border: none; color: #38bdf8; text-align: right; font-size: 20px; font-family: monospace; outline: none; font-weight: bold; }
+    .wcalc-buttons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .wcalc-btn { background: var(--card-inner); border: 1px solid var(--border); color: #fff; padding: 8px 0; font-size: 11px; font-weight: bold; border-radius: 2px; cursor: pointer; text-align: center; user-select: none; transition: 0.1s; }
+    .wcalc-btn:active { transform: translateY(1px); }
+    .wcalc-btn:hover { background: var(--border); }
+    .wcalc-btn.op { background: #1e293b; color: #38bdf8; }
+    .wcalc-btn.fn { background: #0f172a; color: var(--success); font-size: 10px; }
+    .wcalc-btn.mem { background: #1e1b4b; color: var(--warning); font-size: 10px; }
+    .wcalc-btn.eq { background: var(--success); color: #fff; grid-column: span 2; }
+
+    .main-wrapper { max-width: 1450px; margin: 0 auto; display: flex; flex-direction: row; gap: 15px; align-items: flex-start; }
+    .col-left { width: 58%; }
+    .col-right { width: 42%; position: -webkit-sticky; position: sticky; top: 15px; }
+    
+    .box { background: var(--card-bg); border-radius: 3px; padding: 15px; border: 1px solid var(--border); margin-bottom: 15px; }
+    .box-title { font-size: 13px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .base-row { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+    .base-cell { flex: 1 1 100px; background: var(--card-inner); border: 1px solid var(--border); padding: 5px; border-radius: 2px; }
+    .base-cell label { display: block; font-size: 8px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
+    .base-cell input { background: transparent; border: none; color: #fff; font-size: 12px; font-weight: bold; text-align: right; width: 100%; }
+    .base-cell input:focus { outline: none; }
+
+    .card { background: var(--card-inner); border: 1px solid var(--border); border-radius: 3px; padding: 12px; margin-bottom: 12px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 8px; }
+    .card-title { background: transparent; border: none; border-bottom: 1px solid var(--border); color: #fff; font-weight: bold; font-size: 13px; width: 50%; padding: 2px; }
+    .card-title:focus { outline: none; border-color: var(--primary); }
+
+    .card-body-layout { display: flex; flex-wrap: wrap; gap: 12px; }
+    .card-inputs { flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; }
+    .card-inputs .input-grid { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .card-inputs label { font-size: 12px; color: var(--text-muted); }
+    .card-inputs input { background: var(--card-bg); border: 1px solid var(--border); color: #fff; padding: 4px; border-radius: 2px; text-align: right; font-size: 12px; width: 70px; }
+    .card-inputs select { background: var(--card-bg); border: 1px solid var(--border); color: #fff; padding: 4px; border-radius: 2px; font-size: 11px; width: 130px; }
+
+    .card-switches { flex: 1 1 220px; display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 2px; }
+    .card-switches label { font-size: 11px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text-muted); }
+    .card-switches input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--primary); }
+
+    .card-drill-block { flex: 1 1 100%; background: rgba(37, 99, 235, 0.05); border: 1px dashed var(--border); border-radius: 2px; padding: 10px; margin-top: 8px; display: none; }
+    .card-drill-block.active { display: block; }
+
+    .card-footer { border-top: 1px dashed var(--border); margin-top: 10px; padding-top: 6px; font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
+    .card-footer-row { display: flex; justify-content: space-between; align-items: center; }
+    .card-footer strong { color: #fff; }
+    
+    .print-specs-container { margin-bottom: 8px; }
+    .print-specs-title { font-size: 11px; font-weight: bold; color: var(--text-main); margin-bottom: 4px; text-transform: uppercase; }
+    .print-specs-list { list-style: none; padding: 0; margin: 0; }
+    .print-specs-list li { font-size: 11px; color: var(--text-muted); line-height: 1.5; padding-left: 12px; position: relative; }
+    .print-specs-list li::before { content: "-"; position: absolute; left: 0; color: var(--primary); }
+    
+    .btn { padding: 6px 12px; border-radius: 2px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.1s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #047857; }
+    .btn-blue { background: var(--card-inner); color: var(--text-main); border: 1px solid var(--border); }
+    .btn-blue:hover { border-color: var(--primary); }
+    .btn-red { background: rgba(220, 38, 38, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 3px 6px; font-size: 10px; }
+    .btn-red:hover { background: var(--danger); color: #fff; }
+
+    .report-toggle-container { display: flex; background: var(--card-inner); padding: 3px; border-radius: 2px; border: 1px solid var(--border); margin-bottom: 12px; }
+    .toggle-btn { flex: 1; text-align: center; padding: 6px; font-size: 11px; font-weight: bold; color: var(--text-muted); cursor: pointer; border-radius: 2px; transition: 0.1s; }
+    .toggle-btn.active { background: var(--primary); color: #fff; }
+
+    .res-box { background: var(--card-inner); border-left: 3px solid var(--primary); padding: 10px; border-radius: 2px; margin-bottom: 10px; position: relative; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .res-box.green { border-left-color: var(--success); }
+    .res-box.blue-grad { border-left-color: var(--primary); background: var(--card-inner); }
+    .res-box.purple-grad { border-left-color: #8b5cf6; background: var(--card-inner); }
+    .res-title { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; font-weight: bold; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+    .res-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+    .res-row:last-child { border-bottom: none; }
+    .res-val { font-weight: bold; color: #fff; }
+
+    .print-toggle-label { font-size: 9px; color: var(--text-muted); text-transform: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+    .print-toggle-label input { width: 10px; height: 10px; accent-color: var(--primary); }
+
+    body.report-client .internal-field { display: none !important; }
+    body.hide-p-hours #p_hours_box { display: none !important; }
+    body.hide-p-materials #p_materials_box { display: none !important; }
+    body.hide-p-commercial #p_commercial_box { display: none !important; }
+    body.hide-p-margin #p_margin_box { display: none !important; }
+
+    @media (max-width: 950px) { .main-wrapper { flex-direction: column; } .col-left, .col-right { width: 100%; } }
+    
+    @media print {
+        body { background: #fff !important; color: #000 !important; padding: 0; }
+        .main-wrapper { display: block !important; width: 100% !important; }
+        .col-left, .col-right { width: 100% !important; }
+        .btn, .btn-red, .card-switches, .box-title button, #base_panel_block, .report-toggle-container, .card-inputs, .top-ctrl-bar, .mode-switcher, .history-panel, .print-toggle-label, .currency-rates-panel { display: none !important; }
+        #cell_link_container { display: none !important; }
+        .card-drill-block { display: none !important; }
+        .title-input { border: none !important; color: #000 !important; font-size: 20px !important; width: 100% !important; text-align: left !important; pointer-events: none !important; }
+        .header-area { background: #fff !important; border: none !important; padding: 0 0 10px 0 !important; margin-bottom: 10px !important; border-bottom: 1px solid #000 !important; }
+        .comp-cell { background: #fff !important; border: none !important; padding: 2px !important; }
+        .comp-cell label { color: #555 !important; font-size: 8px !important; }
+        .comp-cell input { color: #000 !important; font-size: 12px !important; pointer-events: none !important; }
+        #print_qr_box { display: block !important; }
+        #print_rates_corner { display: block !important; }
+        .box { background: #fff !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+        .box-title { color: #000 !important; border-bottom: 1px solid #000 !important; font-size: 15px !important; margin-top: 15px !important; }
+        .card { background: #fff !important; border: 1px solid #bbb !important; color: #000 !important; page-break-inside: avoid; padding: 10px !important; margin-bottom: 10px !important; }
+        .card-title { color: #000 !important; border: none !important; font-size: 14px !important; font-weight: bold !important; width: 100% !important; pointer-events: none !important; margin-bottom: 6px !important; }
+        .card-body-layout { display: block !important; }
+        .print-specs-container { display: block !important; margin-bottom: 6px !important; }
+        .print-specs-title { color: #000 !important; font-size: 12px !important; border-bottom: 1px dashed #888 !important; padding-bottom: 2px !important; }
+        .print-specs-list li { color: #222 !important; font-size: 11px !important; }
+        .print-specs-list li::before { color: #000 !important; }
+        .card-footer { border-top: 1px solid #bbb !important; color: #000 !important; font-size: 12px !important; margin-top: 4px !important; padding-top: 4px !important; }
+        .card-footer strong { color: #000 !important; }
+        .res-box { background: #fff !important; border: 1px solid #bbb !important; border-left: 4px solid #000 !important; color: #000 !important; margin-top: 10px !important; }
+        .res-title { color: #333 !important; font-weight: bold !important; }
+        .res-row { border-bottom: 1px dashed #bbb !important; color: #000 !important; }
+        .res-val { color: #000 !important; }
+        .res-box.blue-grad, .res-box.purple-grad { background: #fff !important; border: 1px solid #bbb !important; border-left: 4px solid #000 !important; color: #000 !important; }
+        body.report-client .internal-field { display: none !important; }
+        body.report-client .purple-grad { display: none !important; }
+    }
+</style>
+</head>
+<body class="report-internal">
+<div class="top-ctrl-bar">
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div class="lang-switcher">
+            <button class="lang-btn active" id="l_ua" onclick="changeLang('ua')">UA</button>
+            <button class="lang-btn" id="l_ru" onclick="changeLang('ru')">RU</button>
+            <button class="lang-btn" id="l_en" onclick="changeLang('en')">EN</button>
+            <button class="lang-btn" id="l_pl" onclick="changeLang('pl')">PL</button>
+            <button class="lang-btn" id="l_de" onclick="changeLang('de')">DE</button>
+        </div>
+        <div class="currency-switcher">
+            <button class="curr-btn active" id="curr_uah" onclick="selectCurrency('uah')">₴ UAH</button>
+            <button class="curr-btn" id="curr_pln" onclick="selectCurrency('pln')">zł PLN</button>
+            <button class="curr-btn" id="curr_eur" onclick="selectCurrency('eur')">€ EUR</button>
+            <button class="curr-btn" id="curr_usd" onclick="selectCurrency('usd')">$ USD</button>
+        </div>
+    </div>
+    <div>
+        <button class="btn btn-primary" onclick="saveToHistory()" id="lbl_save_hist">💾 Зберегти в історію</button>
+        <button class="btn btn-blue" onclick="toggleWidgetCalc()" id="lbl_calc_btn">🧮 Інженерний калькулятор</button>
+    </div>
+</div>
+
+<div class="currency-rates-panel">
+    <span style="font-size: 10px; color: #60a5fa; text-transform: uppercase; font-weight: bold;" id="lbl_rates_title">Курс валют (до грн):</span>
+    <div class="currency-rate-cell"><span>zł PLN:</span><input type="number" id="rate_pln" value="12" step="0.01" oninput="runCalc()"></div>
+    <div class="currency-rate-cell"><span>€ EUR:</span><input type="number" id="rate_eur" value="50" step="0.01" oninput="runCalc()"></div>
+    <div class="currency-rate-cell"><span>$ USD:</span><input type="number" id="rate_usd" value="44.0" step="0.01" oninput="runCalc()"></div>
+</div>
+
+<div class="history-panel">
+    <div class="history-title">📂 <span id="lbl_hist_title">Останні 10 прорахунків в пам'яті:</span></div>
+    <ul class="history-list" id="history_list_stack"></ul>
+</div>
+
+<div class="mode-switcher">
+    <button class="mode-btn active" id="m_btn_weld" onclick="setAppMode('weld')">🏭 Комплексні МК (Зварювання / Складання)</button>
+    <button class="mode-btn" id="m_btn_drill" onclick="setAppMode('drill')">🎯 Свердлильний участок (Тільки отвори)</button>
+</div>
+
+<div class="header-area">
+    <div id="print_rates_corner"></div>
+    
+    <!-- Кнопка печати -->
+    <div style="text-align: center; margin-bottom: 6px;" class="top-ctrl-bar">
+        <button class="btn btn-success" style="font-size: 25px; padding: 6px 10px;" onclick="window.print()" id="lbl_print_btn">🖨️ Сформувати звіт (PDF / Печать)</button>
+    </div>
+
+    <!-- Основная двухколоночная сетка -->
+    <div class="main-header-grid">
+        
+        <!-- ЛЕВАЯ ЧАСТЬ: Название изделия и Компания -->
+        <div class="header-left-col">
+            <!-- 1. Компания-исполнитель (Крупный инпут по центру/левому краю) -->
+           <div class="main-title-cell" style="margin-bottom: 20px;">   
+               <label>Компанія-виконавець</label>
+               <input type="text" class="title-input" id="prod_title" value="" placeholder="Введіть компанію..." oninput="runCalc()">
+            </div>
+
+            <!-- 2. Название изделия -->
+            <div class="main-title-cell" style="margin-bottom: 15px;">
+                <label id="lbl_c_name">Назва виробу / замовлення</label>            
+                <input type="text" class="title-input" id="prod_title" value="" placeholder="Введіть назву виробу..." oninput="runCalc()">
+            </div>
+
+            <!-- Дата формирования (Верхний правый угол) -->
+            <div class="comp-cell">
+                <label id="lbl_c_date">Дата формування</label>
+                <input type="text" id="c_date" readonly style="color: var(--warning); font-weight: bold;">
+            </div>
+
+            <!-- 2. Столбик: Подготовил и Телефон -->
+            <div class="contacts-stack">
+                <div class="comp-cell">
+                    <label id="lbl_c_worker">Розрахунок підготував</label>
+                    <input type="text" id="c_worker" placeholder="..." oninput="runCalc()">
+                </div>
+                <div class="comp-cell">
+                    <label id="lbl_c_phone">Телефон зв'язку</label>
+                    <input type="text" id="c_phone" placeholder="..." oninput="runCalc()">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="main-wrapper">
+    <div class="col-left">
+        <div class="box" id="base_panel_block">
+            <div class="box-title" style="color: #60a5fa;" id="lbl_base_title">Глобальна керована база (Нормативи та Ставки)</div>
+            
+            <div class="base-row section-weld-only">
+                <div class="base-cell"><label id="lbl_b_raz">Обробка кромки хв/м</label><input type="number" id="b_razdelka" value="12" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_sbd">Складання шт/хв</label><input type="number" id="b_sborka_det" value="5" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_sbsh">Прихоплення хв/м</label><input type="number" id="b_sborka_shva" value="2" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_obv">Обварка хв/м</label><input type="number" id="b_obvarka" value="4" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_zac">Зачистка хв/м</label><input type="number" id="b_zachistka" value="3" oninput="runCalc()"></div>
+            </div>
+            
+            <div class="base-row" style="margin-bottom: 0;">
+                <div class="base-cell"><label id="lbl_b_drl">Свердл. хв/10мм</label><input type="number" id="b_drill" value="1.5" step="0.1" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_thr">Різьба хв/10мм</label><input type="number" id="b_thread" value="2.5" step="0.1" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_mrk">Розмітка отв. хв</label><input type="number" id="b_mark" value="1.0" step="0.1" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_stp">Зміна інстр. хв</label><input type="number" id="b_setup" value="3.0" step="0.1" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_b_pv">Поправка ПВ</label><input type="number" id="b_k_pv" value="1.3" step="0.1" oninput="runCalc()"></div>
+            </div>
+
+            <div class="base-row" style="margin-bottom: 0; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                <div class="base-cell" style="background: #1e293b;"><label id="lbl_t_weld">ЗП Робочого (Зв/Сл)</label><input type="number" id="b_t_welder" value="230" oninput="runCalc()"></div>
+                <div class="base-cell" style="background: #1e293b;"><label id="lbl_t_drill">ЗП Свердловщика</label><input type="number" id="b_t_driller" value="220" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_t_cli">Клієнт за год</label><input type="number" id="b_t_client" value="650" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_t_el">Світ за кВт</label><input type="number" id="b_t_electr" value="22" oninput="runCalc()"></div>
+                <div class="base-cell"><label id="lbl_t_rnt">Аморт+Оренда за год</label><input type="number" id="b_t_rent" value="200" oninput="runCalc()"></div>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="box-title">
+                <span id="lbl_spec_title">Специфікація вузлів виробу</span>
+                <button class="btn btn-blue" onclick="addNewCard()" id="btn_add_node">+ Додати вузол</button>
+            </div>
+            
+            <div id="cards_stack">
+                <div class="card" id="c_item_1">
+                    <div class="card-header">
+                        <input type="text" class="card-title" value="" placeholder="Введіть назву вузла за кресленням..." oninput="runCalc()">
+                        <button class="btn btn-red lbl-del-node" onclick="deleteCard(1)">Вилучити</button>
+                    </div>
+                    <div class="card-body-layout">
+                        <div class="card-inputs">
+                            <div class="input-grid"><label class="lbl-card-qty">Кількість однакових вузлів, шт:</label><input type="number" class="val-card-qty" value="1" min="1" oninput="runCalc()"></div>
+                            <div class="input-grid section-weld-only"><label class="lbl-count">Деталей на 1 вузол, шт:</label><input type="number" class="val-count" value="0" oninput="runCalc()"></div>
+                            <div class="input-grid section-weld-only"><label class="lbl-len">Шви на 1 вузол, метрів:</label><input type="number" class="val-len" value="0" step="0.1" oninput="runCalc()"></div>
+                            <div class="input-grid section-weld-only"><label class="lbl-dop">Слюсарка на 1 вузол, хв:</label><input type="number" class="val-dop" value="0" oninput="runCalc()"></div>
+                        </div>
+                        <div class="card-switches section-weld-only">
+                            <label class="lbl-sw-density"><input type="checkbox" class="chk-density" onchange="runCalc()">Висока щільність швів (1.05)</label>
+                            <label class="lbl-sw-gabarit"><input type="checkbox" class="chk-gabarit" onchange="runCalc()">Великий габарит (1.3)</label>
+                            <label class="lbl-sw-kran"><input type="checkbox" class="chk-kran" onchange="runCalc()">Робота з краном (1.1)</label>
+                            <label class="lbl-sw-pv"><input type="checkbox" class="chk-pv" checked onchange="runCalc()">Коефіцієнт ПВ (1.4)</label>
+                            <label class="lbl-sw-2weld"><input type="checkbox" class="chk-2weld" onchange="runCalc()">Зварювання в 2 чол. (1.6)</label>
+                            <label class="lbl-sw-2build"><input type="checkbox" class="chk-2build" onchange="runCalc()">Складання в 2 чол. (1.5)</label>
+                            <label class="lbl-sw-2clean"><input type="checkbox" class="chk-2clean" onchange="runCalc()">Зачистка в 2 чол. (1.7)</label>
+                            <label style="color: #60a5fa; font-weight: bold; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4px;">
+                                <input type="checkbox" class="chk-has-drill" onchange="toggleDrillBlock(1)"><span class="lbl-sw-hasdrill">Додати свердління/різьбу</span>
+                            </label>
+                        </div>
+                        <div class="card-drill-block" id="drill_block_1">
+                            <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #60a5fa; text-transform: uppercase;" class="lbl-drill-section">Параметри отворів вузла:</div>
+                            <div class="card-body-layout">
+                                <div class="card-inputs">
+                                    <div class="input-grid"><label class="lbl-dr-machine">Тип верстата:</label>
+                                        <select class="val-machine" onchange="runCalc()">
+                                            <option value="radial" class="lbl-opt-radial">Радіальний (4.0 кВт)</option>
+                                            <option value="magnetic" class="lbl-opt-magnetic">Магнітний (1.8 кВт)</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-grid"><label class="lbl-dr-diam">Діаметр отвору (Ø):</label>
+                                        <select class="val-drill-diam" onchange="runCalc()">
+                                            <option value="3">Ø3 мм</option><option value="4">Ø4 мм</option><option value="5">Ø5 мм</option><option value="6">Ø6 мм</option><option value="8">Ø8 мм</option><option value="10" selected>Ø10 мм</option><option value="12">Ø12 мм</option><option value="14">Ø14 мм</option><option value="16">Ø16 мм</option><option value="18">Ø18 мм</option><option value="20">Ø20 мм</option><option value="22">Ø22 мм</option><option value="24">Ø24 мм</option><option value="27">Ø27 мм</option><option value="30">Ø30 мм</option><option value="33">Ø33 мм</option><option value="36">Ø36 мм</option><option value="39">Ø39 мм</option><option value="42">Ø42 мм</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-grid"><label class="lbl-dr-qty">Отворів на 1 вузол, шт:</label><input type="number" class="val-holes-qty" value="0" oninput="runCalc()"></div>
+                                    <div class="input-grid"><label class="lbl-dr-depth">Глибина, мм:</label><input type="number" class="val-holes-depth" value="0" oninput="runCalc()"></div>
+                                    <div class="input-grid"><label class="lbl-dr-passes">Проходів (свердел):</label><input type="number" class="val-holes-passes" value="1" oninput="runCalc()"></div>
+                                </div>
+                                <div class="card-switches" style="background: rgba(0,0,0,0.1);">
+                                    <label class="lbl-dr-mark"><input type="checkbox" class="chk-drill-mark" checked onchange="runCalc()">Потрібна розмітка</label>
+                                    <label class="lbl-dr-thread"><input type="checkbox" class="chk-drill-thread" onchange="runCalc()">Нарізка різьби</label>
+                                    <div class="input-grid thread-size-container" style="display:none; margin-top: 4px; width: 100%;"><label style="font-size: 11px;" class="lbl-dr-thsize">Розмір різьби:</label>
+                                        <select class="val-thread-size" onchange="runCalc()">
+                                            <option value="3">М3</option><option value="4">М4</option><option value="5">М5</option><option value="6">М6</option><option value="8">М8</option><option value="10" selected>М10</option><option value="12">М12</option><option value="14">М14</option><option value="16">М16</option><option value="18">М18</option><option value="20">М20</option><option value="22">М22</option><option value="24">М24</option><option value="27">М27</option><option value="30">М30</option><option value="33">М33</option><option value="36">М36</option><option value="39">М39</option><option value="42">М42</option>
+                                        </select>
+                                    </div>
+                                    <label class="lbl-dr-deep"><input type="checkbox" class="chk-drill-deep" onchange="runCalc()">Глибокий отвір (&gt;3*Ø)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="print-specs-container">
+                            <div class="print-specs-title" id="lbl_footer_spec_title">Технічні характеристики вузла:</div>
+                            <ul class="print-specs-list" id="specs_list_1"></ul>
+                        </div>
+                        <div class="card-footer-row">
+                            <span><span class="lbl-card-f-time">Всього часу на тираж:</span> <strong class="out-card-h">0.00 год.</strong></span>
+                            <span class="internal-field" style="font-size:11px; display:flex; flex-direction:column; text-align:right;">
+                                <span><span class="lbl-card-f-zpw">ЗП Складання/Зварювання:</span> <strong class="out-card-zp-weld">0</strong></span>
+                                <span><span class="lbl-card-f-zpd">ЗП Свердління:</span> <strong class="out-card-zp-dril">0</strong></span>
+                            </span>
+                            <span class="report-client-only" style="display:none;"><span class="lbl-card-f-cost">Вартість разом:</span> <strong class="out-card-client-cost">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="col-right">
+        <div class="box" style="position: -webkit-sticky; position: sticky; top: 20px;">
+            <div class="report-toggle-container">
+                <div class="toggle-btn active" id="btn_mode_internal" onclick="setReportMode('internal')">Внутрішній звіт цеху</div>
+                <div class="toggle-btn" id="btn_mode_client" onclick="setReportMode('client')">Звіт для Замовника</div>
+            </div>
+            
+            <div class="box-title" id="mirror_title">Підсумковий розрахунок специфікації</div>
+
+            <div class="res-box" id="p_hours_box">
+                <div class="res-title">
+                    <span id="lbl_r_title_h">Підсумкові трудовитрати та нормо-години</span>
+                    <label class="print-toggle-label"><input type="checkbox" checked onchange="toggleBlockPrint('hide-p-hours', this)"><span class="lbl-pr-show">Друк</span></label>
+                </div>
+                <div class="res-row"><span id="lbl_res_total_h">Всього нормо-годин на виріб:</span><span class="res-val" id="out_hours" style="color: var(--warning);">0.00 год.</span></div>
+                <div class="res-row class-internal internal-field"><span id="lbl_res_weld_h">З них Зварювання / Складання:</span><span class="res-val" id="out_weld_h">0.00 год.</span></div>
+                <div class="res-row class-internal internal-field"><span id="lbl_res_drill_h">З них Мехобробка (Свердління):</span><span class="res-val" id="out_drill_h">0.00 год.</span></div>
+                <div class="res-row internal-field" style="border-top: 1px solid #374151; margin-top: 5px; padding-top: 5px; font-size:12px;">
+                    <span><strong id="lbl_res_zp_weld">Загальна ЗП Робітників (Складання/Зварювання):</strong></span>
+                    <span class="res-val" id="out_zp_weld" style="color: #10b981;">0</span>
+                </div>
+                <div class="res-row internal-field" style="font-size:12px;">
+                    <span><strong id="lbl_res_zp_dril">Загальна ЗП Свердловщика:</strong></span>
+                    <span class="res-val" id="out_zp_dril" style="color: #10b981;">0</span>
+                </div>
+            </div>
+
+            <div class="res-box internal-field" id="p_materials_box">
+                <div class="res-title">
+                    <span id="lbl_r_title_mat">Внутрішня витрата матеріалів та мережі</span>
+                    <label class="print-toggle-label"><input type="checkbox" checked onchange="toggleBlockPrint('hide-p-materials', this)"><span class="lbl-pr-show">Друк</span></label>
+                </div>
+                <div class="res-row"><span id="lbl_mat_wire">Зварювальний дріт:</span><span class="res-val" id="out_wire">0.00 кг</span></div>
+                <div class="res-row"><span id="lbl_mat_gas">Захисний газ (Аргон/СО2):</span><span class="res-val" id="out_gas">0.00 м³</span></div>
+                <div class="res-row"><span id="lbl_mat_discs">Зачисні круги КШМ:</span><span class="res-val" id="out_discs">0.00 шт</span></div>
+                <div class="res-row" style="border-top: 1px solid #374151; margin-top: 4px; padding-top: 4px; color: #67e8f9;">
+                    <span id="lbl_mat_kw_tot">Споживання верстатів (Загальне):</span>
+                    <span class="res-val" id="out_kw" style="color: #67e8f9;">0.00 кВт</span>
+                </div>
+                <div class="res-row" style="color: #67e8f9;"><span id="lbl_mat_kw_cost">Собівартість електрики:</span><span class="res-val" id="out_kw_cost" style="color: #67e8f9;">0</span></div>
+            </div>
+
+            <div class="res-box green blue-grad" id="p_commercial_box">
+                <div class="res-title">
+                    <span style="color: #93c5fd;" id="lbl_r_title_com">Комерційна вартість для замовника</span>
+                    <label class="print-toggle-label"><input type="checkbox" checked onchange="toggleBlockPrint('hide-p-commercial', this)"><span class="lbl-pr-show">Друк</span></label>
+                </div>
+                <div class="res-row"><span id="lbl_com_hours">Вартість нормо-годин виробництва:</span><span class="res-val" id="out_client_hours">0</span></div>
+                <div class="res-row"><span id="lbl_com_rent">Накладні та виробничі витрати:</span><span class="res-val" id="out_client_rent">0</span></div>
+                <div class="res-row" style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 5px; padding-top: 5px;">
+                    <span style="font-weight: bold; font-size: 14px;" id="lbl_com_total">Разом ціна до сплати замовником:</span>
+                    <span class="res-val" id="out_client_total" style="color: #60a5fa; font-size: 16px;">0</span>
+                </div>
+            </div>
+
+            <div class="res-box purple-grad internal-field" id="p_margin_box">
+                <div class="res-title">
+                    <span style="color: #a7f3d0;" id="lbl_r_title_marg">Фінансова ефективність</span>
+                    <label class="print-toggle-label"><input type="checkbox" checked onchange="toggleBlockPrint('hide-p-margin', this)"><span class="lbl-pr-show">Друк</span></label>
+                </div>
+                <div class="res-row">
+                    <span style="font-weight: bold; color: #34d399;" id="lbl_marg_clean">Чистий прибуток бізнесу (Маржа):</span>
+                    <span class="res-val" id="out_margin" style="color: #34d399; font-size: 16px;">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- РОЗШИРЕНИЙ ІНЖЕНЕРНИЙ КАЛЬКУЛЯТОР -->
+<div class="widget-calc" id="w_calculator">
+    <div class="wcalc-head" onmousedown="dragWidgetCalc(event)">
+        <span id="lbl_wcalc_title">🧮 Професійний інженерний калькулятор</span>
+        <span style="cursor:pointer; color:var(--danger); font-size:16px;" onclick="toggleWidgetCalc()">✖</span>
+    </div>
+    <div class="wcalc-screen-box">
+        <div class="wcalc-subscreen" id="wcalc_sub"></div>
+        <input type="text" class="wcalc-screen" id="wcalc_res" value="0" readonly>
+    </div>
+    <div class="wcalc-buttons">
+        <button class="wcalc-btn mem" onclick="wCalcMem('MC')">MC</button>
+        <button class="wcalc-btn mem" onclick="wCalcMem('MR')">MR</button>
+        <button class="wcalc-btn mem" onclick="wCalcMem('M+')">M+</button>
+        <button class="wcalc-btn mem" onclick="wCalcMem('M-')">M-</button>
+        <button class="wcalc-btn op" onclick="wCalcCmd('C')">AC</button>
+        
+        <button class="wcalc-btn fn" onclick="wCalcFunc('sin')">sin</button>
+        <button class="wcalc-btn fn" onclick="wCalcFunc('cos')">cos</button>
+        <button class="wcalc-btn fn" onclick="wCalcFunc('tan')">tan</button>
+        <button class="wcalc-btn fn" onclick="wCalcFunc('sqrt')">√</button>
+        <button class="wcalc-btn op" onclick="wCalcCmd('^')">x^y</button>
+
+        <button class="wcalc-btn fn" onclick="wCalcFunc('log')">log</button>
+        <button class="wcalc-btn fn" onclick="wCalcFunc('ln')">ln</button>
+        <button class="wcalc-btn op" onclick="wCalcNum('(')">(</button>
+        <button class="wcalc-btn op" onclick="wCalcNum(')')">)</button>
+        <button class="wcalc-btn op" onclick="wCalcCmd('/')">/</button>
+
+        <button class="wcalc-btn" onclick="wCalcNum('7')">7</button>
+        <button class="wcalc-btn" onclick="wCalcNum('8')">8</button>
+        <button class="wcalc-btn" onclick="wCalcNum('9')">9</button>
+        <button class="wcalc-btn op" onclick="wCalcCmd('*')">*</button>
+        <button class="wcalc-btn fn" onclick="wCalcConst(Math.PI)">π</button>
+
+        <button class="wcalc-btn" onclick="wCalcNum('4')">4</button>
+        <button class="wcalc-btn" onclick="wCalcNum('5')">5</button>
+        <button class="wcalc-btn" onclick="wCalcNum('6')">6</button>
+        <button class="wcalc-btn op" onclick="wCalcCmd('-')">-</button>
+        <button class="wcalc-btn op" onclick="wCalcCmd('%')">%</button>
+
+        <button class="wcalc-btn" onclick="wCalcNum('1')">1</button>
+        <button class="wcalc-btn" onclick="wCalcNum('2')">2</button>
+        <button class="wcalc-btn" onclick="wCalcNum('3')">3</button>
+        <button class="wcalc-btn op" onclick="wCalcCmd('+')">+</button>
+        <button class="wcalc-btn" onclick="wCalcBack()">⌫</button>
+
+        <button class="wcalc-btn" onclick="wCalcNum('0')" style="grid-column: span 2;">0</button>
+        <button class="wcalc-btn" onclick="wCalcNum('.')">.</button>
+        <button class="wcalc-btn eq" onclick="wCalcEq()">=</button>
+    </div>
+</div>
+
+<script>
+let cardIdIndex = 1;
+let currentLanguage = 'ua';
+let currentAppMode = 'weld'; 
+let globalHistory = [];
+let calcMemory = 0;
+let currentCurrencySymbol = 'грн';
+
+const dictionary = {
+    ua: {
+        lbl_save_hist: "💾 Зберегти в історію", lbl_hist_title: "Останні 10 прорахунків в пам'яті:",
+        m_btn_weld: "🏭 Комплексні МК (Зварювання / Складання)", m_btn_drill: "🎯 Свердлильний участок (Тільки отвори)",
+        lbl_c_name: "Компанія-виконавець", lbl_c_worker: "Розрахунок підготував", lbl_c_phone: "Телефон зв'язку",
+        lbl_c_link: "Назва та Посилання (Каталог / Сайт)", lbl_c_date: "Дата формування", lbl_rates_title: "Курси валют (до 1 грн):",
+        lbl_base_title: "1. Глобальна керована база (Нормативи та Ставки)", lbl_b_raz: "Обробка кромки хв/м",
+        lbl_b_sbd: "Складання шт/хв", lbl_b_sbsh: "Прихоплення хв/м", lbl_b_obv: "Обварка хв/м", lbl_b_zac: "Зачистка хв/м",
+        lbl_b_drl: "Свердл. хв/10мм", lbl_b_thr: "Різьба хв/10мм", lbl_b_mrk: "Розмітка отв. хв", lbl_b_stp: "Зміна інстр. хв",
+        lbl_b_pv: "Поправка ПВ", lbl_t_weld: "ЗП Робочого (Зв/Сл)", lbl_t_drill: "ЗП Свердловщика",
+        lbl_t_cli: "Клієнт за год", lbl_t_el: "Світ за кВт", lbl_t_rnt: "Аморт+Оренда за год",
+        lbl_spec_title: "2. Специфікація вузлів виробу", btn_add_node: "+ Додати вузол",
+        lbl_r_title_h: "Підсумкові трудовитрати та нормо-години", lbl_r_title_mat: "Внутрішня витрата матеріалів та мережі",
+        lbl_r_title_com: "Комерційна вартість для замовника", lbl_r_title_marg: "Фінансова ефективність",
+        lbl_pr_show: "Друк", placeholder_title: "Введіть назву виробу / замовлення...", placeholder_node: "Введіть назву вузла за кресленням...",
+        lbl_node_qty: "Кількість однакових вузлів, шт:", lbl_count: "Деталей на 1 вузол, шт:", lbl_len: "Шви на 1 вузол, метрів:",
+        lbl_dop: "Слюсарка на 1 вузол, хв:", lbl_sw_density: "Висока щільність швів (1.05)", lbl_sw_gabarit: "Великий габарит (1.3)",
+        lbl_sw_kran: "Робота з краном (1.1)", lbl_sw_pv: "Коефіцієнт ПВ (1.4)", lbl_sw_2weld: "Зварювання в 2 чол. (1.6)",
+        lbl_sw_2build: "Складання в 2 чол. (1.5)", lbl_sw_2clean: "Зачистка в 2 чол. (1.7)", lbl_sw_hasdrill: "Додати свердління/різьбу",
+        lbl_drill_section: "Параметри отворів вузла:", lbl_dr_machine: "Тип верстата:", lbl_dr_diam: "Діаметр отвору (Ø):",
+        lbl_dr_qty: "Отворів на 1 вузол, шт:", lbl_dr_depth: "Глибина, мм:", lbl_dr_passes: "Проходів (свердел):",
+        lbl_dr_mark: "Потрібна розмітка", lbl_dr_thread: "Нарізка різьби", lbl_dr_thsize: "Розмір різьби:", lbl_dr_deep: "Глибокий отвір (>3*Ø)",
+        lbl_footer_spec_title: "Технічні характеристики вузла:", lbl_card_f_time: "Всього часу на тираж:", lbl_card_f_zpw: "ЗП Складання/Зварювання:",
+        lbl_card_f_zpd: "ЗП Свердління:", lbl_card_f_cost: "Вартість разом:",
+        lbl_print_btn: "🖨️ Сформувати звіт (PDF / Печать)", btn_mode_internal: "Внутрішній звіт цеху", btn_mode_client: "Звіт для Замовника",
+        lbl_res_total_h: "Всього нормо-годин на виріб:", lbl_res_weld_h: "З них Зварювання / Складання:", lbl_res_drill_h: "З них Мехобробка (Свердління):",
+        lbl_res_zp_weld: "Загальна ЗП Робітників (Складання/Зварювання):", lbl_res_zp_dril: "Загальна ЗП Свердловщика:",
+        lbl_mat_wire: "Зварювальний дріт:", lbl_mat_gas: "Захисний газ (Аргон/СО2):", lbl_mat_discs: "Зачисні круги КШМ:",
+        lbl_mat_kw_tot: "Споживання верстатів (Загальне):", lbl_mat_kw_cost: "Собівартість електрики:",
+        lbl_com_hours: "Вартість нормо-годин виробництва:", lbl_com_rent: "Накладні та виробничі витрати:", lbl_com_total: "Разом ціна до сплати замовником:",
+        lbl_marg_clean: "Чистий прибуток бізнесу (Маржа):", lbl_del_node: "Вилучити",
+        lbl_opt_radial: "Радіальний (4.0 кВт)", lbl_opt_magnetic: "Магнітний (1.8 кВт)", lbl_calc_btn: "🧮 Інженерний калькулятор", lbl_wcalc_title: "🧮 Професійний інженерний калькулятор",
+        unit_pcs: "шт.", unit_m: "м", unit_min: "хв.", unit_mm: "мм", unit_holes: "отв.", unit_hours: "год.",
+        spec_details: "Кількість деталей", spec_welds: "Довжина зварних швів", spec_locksmith: "Слюсарні роботи", spec_drill_hole: "Свердління отворів", spec_thread_cut: "Нарізання метричної різьби", spec_node_qty: "Кількість однакових вузлів"
+    },
+    ru: {
+        lbl_save_hist: "💾 Сохранить в историю", lbl_hist_title: "Последние 10 просчетов в памяти:",
+        m_btn_weld: "🏭 Комплексные МК (Сварка / Сборка)", m_btn_drill: "🎯 Сверлильный участок (Только отверстия)",
+        lbl_c_name: "Компания-исполнитель", lbl_c_worker: "Расчет подготовил", lbl_c_phone: "Телефон связи",
+        lbl_c_link: "Название и Ссылка (Каталог / Сайт)", lbl_c_date: "Дата формирования", lbl_rates_title: "Курсы валют (к 1 грн):",
+        lbl_base_title: "1. Глобальная управляемая база (Нормативы и Ставки)", lbl_b_raz: "Обработка кромки мин/м",
+        lbl_b_sbd: "Сборка шт/мин", lbl_b_sbsh: "Прихватка мин/м", lbl_b_obv: "Обварка мин/м", lbl_b_zac: "Зачистка мин/м",
+        lbl_b_drl: "Свердл. мин/10мм", lbl_b_thr: "Резьба мин/10мм", lbl_b_mrk: "Разметка отв. мин", lbl_b_stp: "Смена инстр. мин",
+        lbl_b_pv: "Поправка ПВ", lbl_t_weld: "ЗП Рабочего (Сборка/Сварка)", lbl_t_drill: "ЗП Сверловщика",
+        lbl_t_cli: "Клиент за час", lbl_t_el: "Свет за кВт", lbl_t_rnt: "Аморт+Аренда за час",
+        lbl_spec_title: "2. Спецификация узлов изделия", btn_add_node: "+ Добавить узел",
+        lbl_r_title_h: "Итоговые трудозатраты и нормо-часы", lbl_r_title_mat: "Внутренний расход материалов и сети",
+        lbl_r_title_com: "Коммерческая стоимость для заказчика", lbl_r_title_marg: "Финансовая эффективность",
+        lbl_pr_show: "Печать", placeholder_title: "Введите название изделия / заказа...", placeholder_node: "Введите название узла по чертежу...",
+        lbl_node_qty: "Количество одинаковых узлов, шт:", lbl_count: "Деталей на 1 узел, шт:", lbl_len: "Швы на 1 узел, метров:",
+        lbl_dop: "Слесарка на 1 узел, мин:", lbl_sw_density: "Высокая плотность швов (1.05)", lbl_sw_gabarit: "Крупный габарит (1.3)",
+        lbl_sw_kran: "Работа с краном (1.1)", lbl_sw_pv: "Коэффициент ПВ (1.4)", lbl_sw_2weld: "Сварка в 2 чел. (1.6)",
+        lbl_sw_2build: "Сборка в 2 чел. (1.5)", lbl_sw_2clean: "Зачистка в 2 чел. (1.7)", lbl_sw_hasdrill: "Добавить сверловку/резьбу",
+        lbl_drill_section: "Параметры отверстий узла:", lbl_dr_machine: "Тип станка:", lbl_dr_diam: "Диаметр отверстия (Ø):",
+        lbl_dr_qty: "Отверстий на 1 узел, шт:", lbl_dr_depth: "Глубина, мм:", lbl_dr_passes: "Проходов (сверл):",
+        lbl_dr_mark: "Нужна разметка", lbl_dr_thread: "Нарезка резьбы", lbl_dr_thsize: "Размер резьбы:", lbl_dr_deep: "Глубокое отв. (>3*Ø)",
+        lbl_footer_spec_title: "Технические характеристики узла:", lbl_card_f_time: "Всего времени на тираж:", lbl_card_f_zpw: "ЗП Сборки/Сварки:",
+        lbl_card_f_zpd: "ЗП Сверловки:", lbl_card_f_cost: "Стоимость вместе:",
+        lbl_print_btn: "🖨️ Сформировать отчет (PDF / Печать)", btn_mode_internal: "Внутренний отчет цеха", btn_mode_client: "Отчет для Заказчика",
+        lbl_res_total_h: "Всего нормо-часов на изделие:", lbl_res_weld_h: "Из них Сварка / Сборка:", lbl_res_drill_h: "Из них Мехобработка (Сверловка):",
+        lbl_res_zp_weld: "Общая ЗП Рабочих (Сборка/Сварка):", lbl_res_zp_dril: "Общая ЗП Сверловщика:",
+        lbl_mat_wire: "Сварочная проволока:", lbl_mat_gas: "Защитный газ (Аргон/СО2):", lbl_mat_discs: "Зачистные круги УШМ:",
+        lbl_mat_kw_tot: "Потребление станков (Общее):", lbl_mat_kw_cost: "Себестоимость электричества:",
+        lbl_com_hours: "Стоимость нормо-часов производства:", lbl_com_rent: "Накладные и производственные расходы:", lbl_com_total: "Итого цена к оплате заказчиком:",
+        lbl_marg_clean: "Чистая прибыль бизнеса (Маржа):", lbl_del_node: "Удалить",
+        lbl_opt_radial: "Радиальный (4.0 кВт)", lbl_opt_magnetic: "Магнитный (1.8 кВт)", lbl_calc_btn: "🧮 Инженерный калькулятор", lbl_wcalc_title: "🧮 Профессиональный инженерный калькулятор",
+        unit_pcs: "шт.", unit_m: "м", unit_min: "мин.", unit_mm: "мм", unit_holes: "отв.", unit_hours: "ч.",
+        spec_details: "Количество деталей", spec_welds: "Длина сварных швов", spec_locksmith: "Слесарные работы", spec_drill_hole: "Сверление отверстий", spec_thread_cut: "Нарезание метрической резьбы", spec_node_qty: "Количество одинаковых узлов"
+    },
+    en: {
+        lbl_save_hist: "💾 Save to History", lbl_hist_title: "Last 10 calculations in memory:",
+        m_btn_weld: "🏭 Complex Steel Structures (Welding / Assembly)", m_btn_drill: "🎯 Drilling Workshop (Holes Only)",
+        lbl_c_name: "Executing Company", lbl_c_worker: "Calculated By", lbl_c_phone: "Contact Phone",
+        lbl_c_link: "Name & Link (Catalog / Site)", lbl_c_date: "Date of Issue", lbl_rates_title: "Currency rates (to 1 UAH):",
+        lbl_base_title: "1. Global Managed Database (Norms & Rates)", lbl_b_raz: "Edge preparation min/m",
+        lbl_b_sbd: "Assembly pcs/min", lbl_b_sbsh: "Tack welding min/m", lbl_b_obv: "Full welding min/m", lbl_b_zac: "Grinding min/m",
+        lbl_b_drl: "Drilling min/10mm", lbl_b_thr: "Threading min/10mm", lbl_b_mrk: "Marking min/pc", lbl_b_stp: "Tool change min",
+        lbl_b_pv: "Efficiency Factor", lbl_t_weld: "Worker Rate (Weld/Fit)", lbl_t_drill: "Driller Rate",
+        lbl_t_cli: "Client Rate/h", lbl_t_el: "Power Cost/kW", lbl_t_rnt: "Amort+Rent Cost/h",
+        lbl_spec_title: "2. Product Node Specification", btn_add_node: "+ Add Node",
+        lbl_r_title_h: "Total Labor & Standard Hours", lbl_r_title_mat: "Internal Material Consumption",
+        lbl_r_title_com: "Commercial Quote for Client", lbl_r_title_marg: "Financial Efficiency",
+        lbl_pr_show: "Print", placeholder_title: "Enter product name / order reference...", placeholder_node: "Enter node name by drawing...",
+        lbl_node_qty: "Quantity of identical nodes, pcs:", lbl_count: "Parts per 1 node, pcs:", lbl_len: "Welds per 1 node, meters:",
+        lbl_dop: "Fitting per 1 node, min:", lbl_sw_density: "High weld density (1.05)", lbl_sw_gabarit: "Large dimensions (1.3)",
+        lbl_sw_kran: "Crane operation (1.1)", lbl_sw_pv: "Efficiency margin (1.4)", lbl_sw_2weld: "2-man welding (1.6)",
+        lbl_sw_2build: "2-man assembly (1.5)", lbl_sw_2clean: "2-man grinding (1.7)", lbl_sw_hasdrill: "Add drilling / threading",
+        lbl_drill_section: "Node Hole Parameters:", lbl_dr_machine: "Machine Type:", lbl_dr_diam: "Hole Diameter (Ø):",
+        lbl_dr_qty: "Holes per 1 node, pcs:", lbl_dr_depth: "Depth, mm:", lbl_dr_passes: "Passes (drills):",
+        lbl_dr_mark: "Marking required", lbl_dr_thread: "Thread tapping", lbl_dr_thsize: "Thread size:", lbl_dr_deep: "Deep hole (>3*Ø)",
+        lbl_footer_spec_title: "Node Technical Specifications:", lbl_card_f_time: "Total batch time:", lbl_card_f_zpw: "Assembly/Welding FOT:",
+        lbl_card_f_zpd: "Drilling FOT:", lbl_card_f_cost: "Total price:",
+        lbl_print_btn: "🖨️ Generate Report (PDF / Print)", btn_mode_internal: "Internal Workshop Report", btn_mode_client: "Client Report",
+        lbl_res_total_h: "Total standard hours:", lbl_res_weld_h: "Welding / Assembly hours:", lbl_res_drill_h: "Machining (Drilling) hours:",
+        lbl_res_zp_weld: "Total Workers Pay (Assembly/Welding):", lbl_res_zp_dril: "Total Driller Pay:",
+        lbl_mat_wire: "Welding wire:", lbl_mat_gas: "Shielding gas (Argon/CO2):", lbl_mat_discs: "Grinding discs:",
+        lbl_mat_kw_tot: "Machine power consumption (Total):", lbl_mat_kw_cost: "Electricity cost:",
+        lbl_com_hours: "Production labor cost:", lbl_com_rent: "Overheads & production expenses:", lbl_com_total: "Total client quote:",
+        lbl_marg_clean: "Net business profit (Margin):", lbl_del_node: "Remove",
+        lbl_opt_radial: "Radial (4.0 kW)", lbl_opt_magnetic: "Magnetic (1.8 kW)", lbl_calc_btn: "🧮 Engineering Calculator", lbl_wcalc_title: "🧮 Professional Engineering Calculator",
+        unit_pcs: "pcs.", unit_m: "m", unit_min: "min.", unit_mm: "mm", unit_holes: "holes", unit_hours: "hrs.",
+        spec_details: "Number of parts", spec_welds: "Welds length", spec_locksmith: "Locksmith work", spec_drill_hole: "Drilling holes", spec_thread_cut: "Metric thread tapping", spec_node_qty: "Quantity of identical nodes"
+    },
+    pl: {
+        lbl_save_hist: "💾 Zapisz w historii", lbl_hist_title: "Ostatnie 10 kalkulacji w pamięci:",
+        m_btn_weld: "🏭 Kompleksowe Konstrukcje (Spawanie / Montaż)", m_btn_drill: "🎯 Warsztat wiercenia (Tylko otwory)",
+        lbl_c_name: "Wykonawca", lbl_c_worker: "Opracował", lbl_c_phone: "Telefon kontaktowy",
+        lbl_c_link: "Nazwa i Link (Katalog / Strona)", lbl_c_date: "Data utworzenia", lbl_rates_title: "Kursy walut (do 1 UAH):",
+        lbl_base_title: "1. Globalna baza norm i stawek", lbl_b_raz: "Ukośne przygotowanie min/m",
+        lbl_b_sbd: "Montaż szt/min", lbl_b_sbsh: "Sczepianie min/m", lbl_b_obv: "Spawanie pełne min/m", lbl_b_zac: "Szlifowanie min/m",
+        lbl_b_drl: "Wiercenie min/10mm", lbl_b_thr: "Gwintowanie min/10mm", lbl_b_mrk: "Trasowanie min/otwór", lbl_b_stp: "Wymiana narzędzia min",
+        lbl_b_pv: "Współczynnik wydajności", lbl_t_weld: "Stawka Robotnika", lbl_t_drill: "Stawka Wiertacza",
+        lbl_t_cli: "Stawka Klienta/h", lbl_t_el: "Prąd koszt/kW", lbl_t_rnt: "Amort+Wynajem/h",
+        lbl_spec_title: "2. Specyfikacja węzłów produktu", btn_add_node: "+ Dodaj węzeł",
+        lbl_r_title_h: "Łączny czas pracy i roboczogodziny", lbl_r_title_mat: "Wewnętrzne zużycie materiałów",
+        lbl_r_title_com: "Wartość komercyjna dla klienta", lbl_r_title_marg: "Efektywność finansowa",
+        lbl_pr_show: "Drukuj", placeholder_title: "Wpisz nazwę produktu / zamówienia...", placeholder_node: "Wpisz nazwę węzła według rysunku...",
+        lbl_node_qty: "Ilość jednakowych węzłów, szt:", lbl_count: "Części na 1 węzeł, szt:", lbl_len: "Spoiny na 1 węzeł, metry:",
+        lbl_dop: "Prace ślusarskie 1 węzeł, min:", lbl_sw_density: "Wysoka gęstość spoin (1.05)", lbl_sw_gabarit: "Duży gabaryt (1.3)",
+        lbl_sw_kran: "Praca z dźwigiem (1.1)", lbl_sw_pv: "Margines wydajności (1.4)", lbl_sw_2weld: "Spawanie w 2 osoby (1.6)",
+        lbl_sw_2build: "Montaż w 2 osoby (1.5)", lbl_sw_2clean: "Szlifowanie w 2 osoby (1.7)", lbl_sw_hasdrill: "Dodaj wiercenie / gwintowanie",
+        lbl_drill_section: "Parametry otworów węzła:", lbl_dr_machine: "Typ maszyny:", lbl_dr_diam: "Średnica otworu (Ø):",
+        lbl_dr_qty: "Otwory na 1 węzeł, szt:", lbl_dr_depth: "Głębokość, mm:", lbl_dr_passes: "Przejścia (wiertła):",
+        lbl_dr_mark: "Wymagane trasowanie", lbl_dr_thread: "Nacinanie gwintów", lbl_dr_thsize: "Rozmiar gwintu:", lbl_dr_deep: "Głęboki otwór (>3*Ø)",
+        lbl_footer_spec_title: "Specyfikacja techniczna węzła:", lbl_card_f_time: "Łączny czas partii:", lbl_card_f_zpw: "FOT Montaż/Spawanie:",
+        lbl_card_f_zpd: "FOT Wiercenia:", lbl_card_f_cost: "Wartość razem:",
+        lbl_print_btn: "🖨️ Generuj raport (PDF / Drukuj)", btn_mode_internal: "Wewnętrzny raport warsztatu", btn_mode_client: "Raport dla Klienta",
+        lbl_res_total_h: "Łącznie roboczogodzin:", lbl_res_weld_h: "W tym Spawanie / Montaż:", lbl_res_drill_h: "W tym Obróbka (Wiercenie):",
+        lbl_res_zp_weld: "Całkowite wynagrodzenie robotników:", lbl_res_zp_dril: "Całkowite wynagrodzenie wiertacza:",
+        lbl_mat_wire: "Drut spawalniczy:", lbl_mat_gas: "Gaz osłonowy (Argon/CO2):", lbl_mat_discs: "Tarcze szlifierskie:",
+        lbl_mat_kw_tot: "Pobór mocy maszyn (Ogółem):", lbl_mat_kw_cost: "Koszt energii elektrycznej:",
+        lbl_com_hours: "Koszt roboczogodzin produkcji:", lbl_com_rent: "Koszty ogólne i produkcyjne:", lbl_com_total: "Razem do zapłaty przez klienta:",
+        lbl_marg_clean: "Zysk netto biznesu (Marża):", lbl_del_node: "Usuń",
+        lbl_opt_radial: "Promieniowa (4.0 kW)", lbl_opt_magnetic: "Magnetyczna (1.8 kW)", lbl_calc_btn: "🧮 Kalkulator Inżynierski", lbl_wcalc_title: "🧮 Profesjonalny kalkulator inżynierski",
+        unit_pcs: "szt.", unit_m: "m", unit_min: "min.", unit_mm: "mm", unit_holes: "otw.", unit_hours: "godz.",
+        spec_details: "Ilość części", spec_welds: "Długość spoin", spec_locksmith: "Prace ślusarskie", spec_drill_hole: "Wiercenie otworów", spec_thread_cut: "Nacinanie gwintów metrycznych", spec_node_qty: "Ilość jednakowych węzłów"
+    },
+    de: {
+        lbl_save_hist: "💾 In Historie speichern", lbl_hist_title: "Die letzten 10 Berechnungen im Speicher:",
+        m_btn_weld: "🏭 Komplexe Stahlbauten (Schweißen / Montage)", m_btn_drill: "🎯 Bohrabteilung (Nur Löcher)",
+        lbl_c_name: "Ausführendes Unternehmen", lbl_c_worker: "Berechnet von", lbl_c_phone: "Kontakttelefon",
+        lbl_c_link: "Name & Weblink (Katalog / Website)", lbl_c_date: "Ausstellungsdatum", lbl_rates_title: "Wechselkurse (zu 1 UAH):",
+        lbl_base_title: "1. Globale verwaltete Datenbank (Normen & Sätze)", lbl_b_raz: "Kantenbearbeitung Min/m",
+        lbl_b_sbd: "Montage Stk/Min", lbl_b_sbsh: "Heftschweißen Min/m", lbl_b_obv: "Vollschweißen Min/m", lbl_b_zac: "Schleifen Min/m",
+        lbl_b_drl: "Bohren Min/10mm", lbl_b_thr: "Gewindeschneiden Min/10mm", lbl_b_mrk: "Anreißen Min/Stk", lbl_b_stp: "Werkzeugwechsel Min",
+        lbl_b_pv: "Leistungsfaktor", lbl_t_weld: "Arbeiter_Lohn", lbl_t_drill: "Bohrer_Lohn",
+        lbl_t_cli: "Kundensatz/h", lbl_t_el: "Stromkosten/kW", lbl_t_rnt: "Abschreibung+Miete/h",
+        lbl_spec_title: "2. Produktknoten-Spezifikation", btn_add_node: "+ Knoten hinzufügen",
+        lbl_r_title_h: "Gesamtarbeitszeit & Standardstunden", lbl_r_title_mat: "Interner Materialverbrauch",
+        lbl_r_title_com: "Kommerzielles Angebot für den Kunden", lbl_r_title_marg: "Finanzielle Effizienz",
+        lbl_pr_show: "Drucken", placeholder_title: "Produktname / Auftragsreferenz eingeben...", placeholder_node: "Knotenname nach Zeichnung eingeben...",
+        lbl_node_qty: "Menge identischer Knoten, Stk:", lbl_count: "Teile pro 1 Knoten, Stk:", lbl_len: "Schweißnähte pro 1 Knoten, Meter:",
+        lbl_dop: "Schlosserarbeiten 1 Knoten, Min:", lbl_sw_density: "Hohe Nahtdichte (1.05)", lbl_sw_gabarit: "Große Abmessungen (1.3)",
+        lbl_sw_kran: "Kranbetrieb (1.1)", lbl_sw_pv: "Leistungsspielraum (1.4)", lbl_sw_2weld: "2-Mann-Schweißen (1.6)",
+        lbl_sw_2build: "2-Mann-Montage (1.5)", lbl_sw_2clean: "2-Mann-Schleifen (1.7)", lbl_sw_hasdrill: "Bohren / Gewindeschneiden hinzufügen",
+        lbl_drill_section: "Knotenlochparameter:", lbl_dr_machine: "Maschinentyp:", lbl_dr_diam: "Lochdurchmesser (Ø):",
+        lbl_dr_qty: "Löcher pro 1 Knoten, Stk:", lbl_dr_depth: "Tiefe, mm:", lbl_dr_passes: "Durchgänge (Bohrer):",
+        lbl_dr_mark: "Anreißen erforderlich", lbl_dr_thread: "Gewindebohren", lbl_dr_thsize: "Gewindegröße:", lbl_dr_deep: "Tiefloch (>3*Ø)",
+        lbl_footer_spec_title: "Technische Spezifikationen des Knotens:", lbl_card_f_time: "Gesamtzeit der Charge:", lbl_card_f_zpw: "Montage/Schweißen FOT:",
+        lbl_card_f_zpd: "Bohren FOT:", lbl_card_f_cost: "Gesamtpreis:",
+        lbl_print_btn: "🖨️ Bericht erstellen (PDF / Drucken)", btn_mode_internal: "Interne Werkstattbericht", btn_mode_client: "Kundenbericht",
+        lbl_res_total_h: "Gesamtnormstunden:", lbl_res_weld_h: "Davon Schweißen / Montage:", lbl_res_drill_h: "Davon Bearbeitung (Bohren):",
+        lbl_res_zp_weld: "Gesamtlohn Arbeiter (Montage/Schweißen):", lbl_res_zp_dril: "Gesamtlohn Bohrer:",
+        lbl_mat_wire: "Schweißdraht:", lbl_mat_gas: "Schutzgas (Argon/СО2):", lbl_mat_discs: "Schleifscheiben:",
+        lbl_mat_kw_tot: "Maschinenleistungsaufnahme (Gesamt):", lbl_mat_kw_cost: "Stromkosten:",
+        lbl_com_hours: "Produktionsarbeitskosten:", lbl_com_rent: "Gemeinkosten & Produktionsaufwand:", lbl_com_total: "Gesamtpreis für den Kunden:",
+        lbl_marg_clean: "Nettogewinn des Unternehmens (Marge):", lbl_del_node: "Entfernen",
+        lbl_opt_radial: "Radial (4.0 kW)", lbl_opt_magnetic: "Magnetisch (1.8 kW)", lbl_calc_btn: "🧮 Ingenieurrechner", lbl_wcalc_title: "🧮 Professioneller Ingenieurrechner",
+        unit_pcs: "Stk.", unit_m: "m", unit_min: "Min.", unit_mm: "mm", unit_holes: "Löcher", unit_hours: "Std.",
+        spec_details: "Anzahl der Teile", spec_welds: "Schweißnahtlänge", spec_locksmith: "Schlosserarbeiten", spec_drill_hole: "Bohren von Löchern", spec_thread_cut: "Metrisches Gewindeschneiden", spec_node_qty: "Menge identischer Knoten"
+    }
+};
+
+function changeLang(lang) {
+    currentLanguage = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`l_${lang}`).classList.add('active');
+
+    const dict = dictionary[lang];
+    for (let key in dict) {
+        const el = document.getElementById(key);
+        if (el) {
+            if (el.tagName === "INPUT") el.placeholder = dict[key];
+            else el.innerText = dict[key];
+        }
+    }
+    
+    document.getElementById('prod_title').placeholder = dict.placeholder_title;
+    
+    document.querySelectorAll('.card').forEach(card => {
+        translateCardElements(card, dict);
+    });
+
+    runCalc();
+    localStorage.setItem('ipc_lang', lang);
+}
+
+function selectCurrency(symbol) {
+    currentCurrencySymbol = symbol === 'uah' ? 'грн' : (symbol === 'pln' ? 'zł' : (symbol === 'eur' ? '€' : '$'));
+    document.querySelectorAll('.curr-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`curr_${symbol}`).classList.add('active');
+    runCalc();
+}
+
+function getCurrencyRate() {
+    if (currentCurrencySymbol === 'zł') return parseFloat(document.getElementById('rate_pln').value) || 1;
+    if (currentCurrencySymbol === '€') return parseFloat(document.getElementById('rate_eur').value) || 1;
+    if (currentCurrencySymbol === '$') return parseFloat(document.getElementById('rate_usd').value) || 1;
+    return 1;
+}
+
+function formatMoney(amount) {
+    let rate = getCurrencyRate();
+    let converted = amount / rate;
+    return Math.round(converted).toLocaleString() + " " + currentCurrencySymbol;
+}
+
+function translateCardElements(card, dict) {
+    card.querySelector('.card-title').placeholder = dict.placeholder_node;
+    if(card.querySelector('.lbl-card-qty')) card.querySelector('.lbl-card-qty').innerText = dict.lbl_node_qty;
+    if(card.querySelector('.lbl-count')) card.querySelector('.lbl-count').innerText = dict.lbl_count;
+    if(card.querySelector('.lbl-len')) card.querySelector('.lbl-len').innerText = dict.lbl_len;
+    if(card.querySelector('.lbl-dop')) card.querySelector('.lbl-dop').innerText = dict.lbl_dop;
+    if(card.querySelector('.lbl-del-node')) card.querySelector('.lbl-del-node').innerText = dict.lbl_del_node;
+    
+    if(card.querySelector('.lbl-sw-density')) card.querySelector('.lbl-sw-density').childNodes[1].nodeValue = dict.lbl_sw_density;
+    if(card.querySelector('.lbl-sw-gabarit')) card.querySelector('.lbl-sw-gabarit').childNodes[1].nodeValue = dict.lbl_sw_gabarit;
+    if(card.querySelector('.lbl-sw-kran')) card.querySelector('.lbl-sw-kran').childNodes[1].nodeValue = dict.lbl_sw_kran;
+    if(card.querySelector('.lbl-sw-pv')) card.querySelector('.lbl-sw-pv').childNodes[1].nodeValue = dict.lbl_sw_pv;
+    if(card.querySelector('.lbl-sw-2weld')) card.querySelector('.lbl-sw-2weld').childNodes[1].nodeValue = dict.lbl_sw_2weld;
+    if(card.querySelector('.lbl-sw-2build')) card.querySelector('.lbl-sw-2build').childNodes[1].nodeValue = dict.lbl_sw_2build;
+    if(card.querySelector('.lbl-sw-2clean')) card.querySelector('.lbl-sw-2clean').childNodes[1].nodeValue = dict.lbl_sw_2clean;
+
+    const lblHasDrill = card.querySelector('.lbl-sw-hasdrill');
+    if(lblHasDrill) lblHasDrill.innerText = dict.lbl_sw_hasdrill;
+    
+    if(card.querySelector('.lbl-drill-section')) card.querySelector('.lbl-drill-section').innerText = dict.lbl_drill_section;
+    if(card.querySelector('.lbl-dr-machine')) card.querySelector('.lbl-dr-machine').innerText = dict.lbl_dr_machine;
+    if(card.querySelector('.lbl-dr-diam')) card.querySelector('.lbl-dr-diam').innerText = dict.lbl_dr_diam;
+    if(card.querySelector('.lbl-dr-qty')) card.querySelector('.lbl-dr-qty').innerText = dict.lbl_dr_qty;
+    if(card.querySelector('.lbl-dr-depth')) card.querySelector('.lbl-dr-depth').innerText = dict.lbl_dr_depth;
+    if(card.querySelector('.lbl-dr-passes')) card.querySelector('.lbl-dr-passes').innerText = dict.lbl_dr_passes;
+    if(card.querySelector('.lbl-dr-thsize')) card.querySelector('.lbl-dr-thsize').innerText = dict.lbl_dr_thsize;
+
+    if(card.querySelector('.lbl-dr-mark')) card.querySelector('.lbl-dr-mark').childNodes[1].nodeValue = dict.lbl_dr_mark;
+    if(card.querySelector('.lbl-dr-thread')) card.querySelector('.lbl-dr-thread').childNodes[1].nodeValue = dict.lbl_dr_thread;
+    if(card.querySelector('.lbl-dr-deep')) card.querySelector('.lbl-dr-deep').childNodes[1].nodeValue = dict.lbl_dr_deep;
+
+    const optRadial = card.querySelector('option[value="radial"]');
+    const optMagnetic = card.querySelector('option[value="magnetic"]');
+    if(optRadial) optRadial.innerText = dict.lbl_opt_radial;
+    if(optMagnetic) optMagnetic.innerText = dict.lbl_opt_magnetic;
+    
+    if(card.querySelector('.print-specs-title')) card.querySelector('.print-specs-title').innerText = dict.lbl_footer_spec_title;
+    if(card.querySelector('.lbl-card-f-time')) card.querySelector('.lbl-card-f-time').innerText = dict.lbl_card_f_time;
+    if(card.querySelector('.lbl-card-f-zpw')) card.querySelector('.lbl-card-f-zpw').innerText = dict.lbl_card_f_zpw;
+    if(card.querySelector('.lbl-card-f-zpd')) card.querySelector('.lbl-card-f-zpd').innerText = dict.lbl_card_f_zpd;
+    if(card.querySelector('.lbl-card-f-cost')) card.querySelector('.lbl-card-f-cost').innerText = dict.lbl_card_f_cost;
+}
+
+function addNewCard() {
+    cardIdIndex++;
+    const dict = dictionary[currentLanguage];
+    const container = document.getElementById('cards_stack');
+    
+    const newCard = document.createElement('div');
+    newCard.className = "card";
+    newCard.id = `c_item_${cardIdIndex}`;
+    
+    const weldModeDisplay = (currentAppMode === 'drill') ? 'none' : 'flex';
+
+    newCard.innerHTML = `
+        <div class="card-header">
+            <input type="text" class="card-title" value="" placeholder="${dict.placeholder_node}" oninput="runCalc()">
+            <button class="btn btn-red lbl-del-node" onclick="deleteCard(${cardIdIndex})">${dict.lbl_del_node}</button>
+        </div>
+        <div class="card-body-layout">
+            <div class="card-inputs">
+                <div class="input-grid"><label class="lbl-card-qty">${dict.lbl_node_qty}</label><input type="number" class="val-card-qty" value="1" min="1" oninput="runCalc()"></div>
+                <div class="input-grid section-weld-only" style="display:${weldModeDisplay};"><label class="lbl-count">${dict.lbl_count}</label><input type="number" class="val-count" value="0" oninput="runCalc()"></div>
+                <div class="input-grid section-weld-only" style="display:${weldModeDisplay};"><label class="lbl-len">${dict.lbl_len}</label><input type="number" class="val-len" value="0" step="0.1" oninput="runCalc()"></div>
+                <div class="input-grid section-weld-only" style="display:${weldModeDisplay};"><label class="lbl-dop">${dict.lbl_dop}</label><input type="number" class="val-dop" value="0" oninput="runCalc()"></div>
+            </div>
+            <div class="card-switches section-weld-only" style="display:${weldModeDisplay};">
+                <label class="lbl-sw-density"><input type="checkbox" class="chk-density" onchange="runCalc()">${dict.lbl_sw_density}</label>
+                <label class="lbl-sw-gabarit"><input type="checkbox" class="chk-gabarit" onchange="runCalc()">${dict.lbl_sw_gabarit}</label>
+                <label class="lbl-sw-kran"><input type="checkbox" class="chk-kran" onchange="runCalc()">${dict.lbl_sw_kran}</label>
+                <label class="lbl-sw-pv"><input type="checkbox" class="chk-pv" checked onchange="runCalc()">${dict.lbl_sw_pv}</label>
+                <label class="lbl-sw-2weld"><input type="checkbox" class="chk-2weld" onchange="runCalc()">${dict.lbl_sw_2weld}</label>
+                <label class="lbl-sw-2build"><input type="checkbox" class="chk-2build" onchange="runCalc()">${dict.lbl_sw_2build}</label>
+                <label class="lbl-sw-2clean"><input type="checkbox" class="chk-2clean" onchange="runCalc()">${dict.lbl_sw_2clean}</label>
+                <label style="color: #60a5fa; font-weight: bold; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4px;">
+                    <input type="checkbox" class="chk-has-drill" onchange="toggleDrillBlock(${cardIdIndex})"><span class="lbl-sw-hasdrill">${dict.lbl_sw_hasdrill}</span>
+                </label>
+            </div>
+            <div class="card-drill-block ${currentAppMode === 'drill' ? 'active' : ''}" id="drill_block_${cardIdIndex}">
+                <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #60a5fa; text-transform: uppercase;" class="lbl-drill-section">${dict.lbl_drill_section}</div>
+                <div class="card-body-layout">
+                    <div class="card-inputs">
+                        <div class="input-grid"><label class="lbl-dr-machine">${dict.lbl_dr_machine}</label>
+                            <select class="val-machine" onchange="runCalc()">
+                                <option value="radial">${dict.lbl_opt_radial}</option>
+                                <option value="magnetic">${dict.lbl_opt_magnetic}</option>
+                            </select>
+                        </div>
+                        <div class="input-grid"><label class="lbl-dr-diam">${dict.lbl_dr_diam}</label>
+                            <select class="val-drill-diam" onchange="runCalc()">
+                                <option value="3">Ø3 ${dict.unit_mm}</option><option value="4">Ø4 ${dict.unit_mm}</option><option value="5">Ø5 ${dict.unit_mm}</option><option value="6">Ø6 ${dict.unit_mm}</option><option value="8">Ø8 ${dict.unit_mm}</option><option value="10" selected>Ø10 ${dict.unit_mm}</option><option value="12">Ø12 ${dict.unit_mm}</option><option value="14">Ø14 ${dict.unit_mm}</option><option value="16">Ø16 ${dict.unit_mm}</option><option value="18">Ø18 ${dict.unit_mm}</option><option value="20">Ø20 ${dict.unit_mm}</option><option value="22">Ø22 ${dict.unit_mm}</option><option value="24">Ø24 ${dict.unit_mm}</option><option value="27">Ø27 ${dict.unit_mm}</option><option value="30">Ø30 ${dict.unit_mm}</option><option value="33">Ø33 ${dict.unit_mm}</option><option value="36">Ø36 ${dict.unit_mm}</option><option value="39">Ø39 ${dict.unit_mm}</option><option value="42">Ø42 ${dict.unit_mm}</option>
+                            </select>
+                        </div>
+                        <div class="input-grid"><label class="lbl-dr-qty">${dict.lbl_dr_qty}</label><input type="number" class="val-holes-qty" value="0" oninput="runCalc()"></div>
+                        <div class="input-grid"><label class="lbl-dr-depth">${dict.lbl_dr_depth}</label><input type="number" class="val-holes-depth" value="0" oninput="runCalc()"></div>
+                        <div class="input-grid"><label class="lbl-dr-passes">${dict.lbl_dr_passes}</label><input type="number" class="val-holes-passes" value="1" oninput="runCalc()"></div>
+                    </div>
+                    <div class="card-switches" style="background: rgba(0,0,0,0.1);">
+                        <label class="lbl-dr-mark"><input type="checkbox" class="chk-drill-mark" checked onchange="runCalc()">${dict.lbl_dr_mark}</label>
+                        <label class="lbl-dr-thread"><input type="checkbox" class="chk-drill-thread" onchange="runCalc()">${dict.lbl_dr_thread}</label>
+                        <div class="input-grid thread-size-container" style="display:none; margin-top: 4px; width: 100%;"><label style="font-size: 11px;" class="lbl-dr-thsize">${dict.lbl_dr_thsize}</label>
+                            <select class="val-thread-size" onchange="runCalc()">
+                                <option value="3">М3</option><option value="4">М4</option><option value="5">М5</option><option value="6">М6</option><option value="8">М8</option><option value="10" selected>М10</option><option value="12">М12</option><option value="14">М14</option><option value="16">М16</option><option value="18">М18</option><option value="20">М20</option><option value="22">М22</option><option value="24">М24</option><option value="27">М27</option><option value="30">М30</option><option value="33">М33</option><option value="36">М36</option><option value="39">М39</option><option value="42">М42</option>
+                            </select>
+                        </div>
+                        <label class="lbl-dr-deep"><input type="checkbox" class="chk-drill-deep" onchange="runCalc()">${dict.lbl_dr_deep}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="print-specs-container">
+                <div class="print-specs-title">${dict.lbl_footer_spec_title}</div>
+                <ul class="print-specs-list" id="specs_list_${cardIdIndex}"></ul>
+            </div>
+            <div class="card-footer-row">
+                <span><span class="lbl-card-f-time">${dict.lbl_card_f_time}</span> <strong class="out-card-h">0.00 ${dict.unit_hours}</strong></span>
+                <span class="internal-field" style="font-size:11px; display:flex; flex-direction:column; text-align:right;">
+                    <span><span class="lbl-card-f-zpw">${dict.lbl_card_f_zpw}</span> <strong class="out-card-zp-weld">0</strong></span>
+                    <span><span class="lbl-card-f-zpd">${dict.lbl_card_f_zpd}</span> <strong class="out-card-zp-dril">0</strong></span>
+                </span>
+                <span class="report-client-only" style="display:none;"><span class="lbl-card-f-cost">${dict.lbl_card_f_cost}</span> <strong class="out-card-client-cost">0</strong></span>
+            </div>
+        </div>
+    `;
+    container.appendChild(newCard);
+    
+    if(currentAppMode === 'drill') {
+        newCard.querySelector('.chk-has-drill').checked = true;
+    }
+    runCalc();
+}
+
+function deleteCard(id) {
+    const card = document.getElementById(`c_item_${id}`);
+    if(card) {
+        card.remove();
+        runCalc();
+    }
+}
+
+function toggleDrillBlock(id) {
+    const card = document.getElementById(`c_item_${id}`);
+    if(!card) return;
+    const block = document.getElementById(`drill_block_${id}`);
+    const chk = card.querySelector('.chk-has-drill');
+    if(chk.checked) {
+        block.classList.add('active');
+    } else {
+        if(currentAppMode !== 'drill') block.classList.remove('active');
+    }
+    runCalc();
+}
+
+/* ЛОГІКА ПРОФЕСІЙНОГО ІНЖЕНЕРНОГО КАЛЬКУЛЯТОРА */
+function toggleWidgetCalc() {
+    const calc = document.getElementById('w_calculator');
+    if (!calc) return;
+    calc.style.display = (calc.style.display === 'block') ? 'none' : 'block';
+}
+
+function wCalcNum(n) {
+    const screen = document.getElementById('wcalc_res');
+    if (!screen) return;
+    if (screen.value === '0' || screen.value === 'Error') screen.value = n;
+    else screen.value += n;
+}
+
+function wCalcCmd(op) {
+    const screen = document.getElementById('wcalc_res');
+    if (!screen) return;
+    if (op === 'C') {
+        screen.value = '0';
+        document.getElementById('wcalc_sub').innerText = '';
+    } else if (op === '^') {
+        screen.value += '**';
+    } else {
+        screen.value += ' ' + op + ' ';
+    }
+}
+
+function wCalcFunc(fn) {
+    const screen = document.getElementById('wcalc_res');
+    const sub = document.getElementById('wcalc_sub');
+    if (!screen) return;
+    try {
+        let val = eval(screen.value) || 0;
+        let res = 0;
+        if (fn === 'sin') res = Math.sin(val * Math.PI / 180);
+        else if (fn === 'cos') res = Math.cos(val * Math.PI / 180);
+        else if (fn === 'tan') res = Math.tan(val * Math.PI / 180);
+        else if (fn === 'sqrt') res = val >= 0 ? Math.sqrt(val) : 'Error';
+        else if (fn === 'log') res = val > 0 ? Math.log10(val) : 'Error';
+        else if (fn === 'ln') res = val > 0 ? Math.log(val) : 'Error';
+        
+        sub.innerText = `${fn}(${val}) =`;
+        screen.value = typeof res === 'number' ? parseFloat(res.toFixed(6)) : res;
+    } catch(e) {
+        screen.value = 'Error';
+    }
+}
+
+function wCalcConst(val) {
+    const screen = document.getElementById('wcalc_res');
+    if (!screen) return;
+    screen.value = (screen.value === '0') ? val.toFixed(6) : screen.value + val.toFixed(6);
+}
+
+function wCalcBack() {
+    const screen = document.getElementById('wcalc_res');
+    if (!screen) return;
+    if (screen.value.length > 1) {
+        screen.value = screen.value.slice(0, -1);
+    } else {
+        screen.value = '0';
+    }
+}
+
+function wCalcMem(action) {
+    const screen = document.getElementById('wcalc_res');
+    if (!screen) return;
+    let val = parseFloat(screen.value) || 0;
+    if (action === 'MC') calcMemory = 0;
+    else if (action === 'MR') screen.value = calcMemory;
+    else if (action === 'M+') calcMemory += val;
+    else if (action === 'M-') calcMemory -= val;
+}
+
+function wCalcEq() {
+    const screen = document.getElementById('wcalc_res');
+    const sub = document.getElementById('wcalc_sub');
+    if (!screen) return;
+    try {
+        sub.innerText = screen.value + ' =';
+        let cleanExpr = screen.value.replace(/×/g, '*').replace(/÷/g, '/');
+        let res = eval(cleanExpr);
+        screen.value = isFinite(res) ? parseFloat(res.toFixed(6)) : 'Error';
+    } catch(e) { 
+        screen.value = 'Error'; 
+    }
+}
+
+function dragWidgetCalc(e) {
+    const calc = document.getElementById('w_calculator');
+    if (!calc) return;
+    let shiftX = e.clientX - calc.getBoundingClientRect().left;
+    let shiftY = e.clientY - calc.getBoundingClientRect().top;
+    function moveAt(clientX, clientY) {
+        calc.style.left = clientX - shiftX + 'px';
+        calc.style.top = clientY - shiftY + 'px';
+        calc.style.right = 'auto';
+    }
+    function onMouseMove(event) { moveAt(event.clientX, event.clientY); }
+    document.addEventListener('mousemove', onMouseMove);
+    document.onmouseup = function() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.onmouseup = null;
+    };
+}
+
+function packCurrentState() {
+    const cardsData = [];
+    document.querySelectorAll('.card').forEach(card => {
+        const id = card.id.replace('c_item_', '');
+        cardsData.push({
+            id: id,
+            title: card.querySelector('.card-title').value,
+            qty: card.querySelector('.val-card-qty').value,
+            count: card.querySelector('.val-count').value,
+            len: card.querySelector('.val-len').value,
+            dop: card.querySelector('.val-dop').value,
+            density: card.querySelector('.chk-density') ? card.querySelector('.chk-density').checked : false,
+            gabarit: card.querySelector('.chk-gabarit') ? card.querySelector('.chk-gabarit').checked : false,
+            kran: card.querySelector('.chk-kran') ? card.querySelector('.chk-kran').checked : false,
+            pv: card.querySelector('.chk-pv') ? card.querySelector('.chk-pv').checked : true,
+            w2: card.querySelector('.chk-2weld') ? card.querySelector('.chk-2weld').checked : false,
+            b2: card.querySelector('.chk-2build') ? card.querySelector('.chk-2build').checked : false,
+            c2: card.querySelector('.chk-2clean') ? card.querySelector('.chk-2clean').checked : false,
+            hasDrill: card.querySelector('.chk-has-drill').checked,
+            machine: card.querySelector('.val-machine').value,
+            drillDiam: card.querySelector('.val-drill-diam').value,
+            holesQty: card.querySelector('.val-holes-qty').value,
+            holesDepth: card.querySelector('.val-holes-depth').value,
+            holesPasses: card.querySelector('.val-holes-passes').value,
+            drillMark: card.querySelector('.chk-drill-mark').checked,
+            drillThread: card.querySelector('.chk-drill-thread').checked,
+            threadSize: card.querySelector('.val-thread-size').value,
+            drillDeep: card.querySelector('.chk-drill-deep').checked
+        });
+    });
+
+    return {
+        title: document.getElementById('prod_title').value,
+        c_name: document.getElementById('c_name').value,
+        c_worker: document.getElementById('c_worker').value,
+        c_phone: document.getElementById('c_phone').value,
+        c_link: document.getElementById('c_link').value,
+        rate_pln: document.getElementById('rate_pln').value,
+        rate_eur: document.getElementById('rate_eur').value,
+        rate_usd: document.getElementById('rate_usd').value,
+        appMode: currentAppMode,
+        b_razdelka: document.getElementById('b_razdelka').value,
+        b_sborka_det: document.getElementById('b_sborka_det').value,
+        b_sborka_shva: document.getElementById('b_sborka_shva').value,
+        b_obvarka: document.getElementById('b_obvarka').value,
+        b_zachistka: document.getElementById('b_zachistka').value,
+        b_drill: document.getElementById('b_drill').value,
+        b_thread: document.getElementById('b_thread').value,
+        b_mark: document.getElementById('b_mark').value,
+        b_setup: document.getElementById('b_setup').value,
+        b_k_pv: document.getElementById('b_k_pv').value,
+        b_t_welder: document.getElementById('b_t_welder').value,
+        b_t_driller: document.getElementById('b_t_driller').value,
+        b_t_client: document.getElementById('b_t_client').value,
+        b_t_electr: document.getElementById('b_t_electr').value,
+        b_t_rent: document.getElementById('b_t_rent').value,
+        cards: cardsData
+    };
+}
+
+function unpackState(state) {
+    if(!state) return;
+    document.getElementById('prod_title').value = state.title || "";
+    document.getElementById('c_name').value = state.c_name || "";
+    document.getElementById('c_worker').value = state.c_worker || "";
+    document.getElementById('c_phone').value = state.c_phone || "";
+    document.getElementById('c_link').value = state.c_link || "";
+    if(state.rate_pln) document.getElementById('rate_pln').value = state.rate_pln;
+    if(state.rate_eur) document.getElementById('rate_eur').value = state.rate_eur;
+    if(state.rate_usd) document.getElementById('rate_usd').value = state.rate_usd;
+    
+    document.getElementById('b_razdelka').value = state.b_razdelka;
+    document.getElementById('b_sborka_det').value = state.b_sborka_det;
+    document.getElementById('b_sborka_shva').value = state.b_sborka_shva;
+    document.getElementById('b_obvarka').value = state.b_obvarka;
+    document.getElementById('b_zachistka').value = state.b_zachistka;
+    document.getElementById('b_drill').value = state.b_drill;
+    document.getElementById('b_thread').value = state.b_thread;
+    document.getElementById('b_mark').value = state.b_mark;
+    document.getElementById('b_setup').value = state.b_setup;
+    document.getElementById('b_k_pv').value = state.b_k_pv;
+    document.getElementById('b_t_welder').value = state.b_t_welder;
+    if(state.b_t_driller) document.getElementById('b_t_driller').value = state.b_t_driller;
+    document.getElementById('b_t_client').value = state.b_t_client;
+    document.getElementById('b_t_electr').value = state.b_t_electr;
+    document.getElementById('b_t_rent').value = state.b_t_rent;
+
+    setAppMode(state.appMode || 'weld');
+
+    const container = document.getElementById('cards_stack');
+    container.innerHTML = "";
+    cardIdIndex = 0;
+
+    state.cards.forEach(c => {
+        addNewCard();
+        const card = document.getElementById(`c_item_${cardIdIndex}`);
+        card.querySelector('.card-title').value = c.title || "";
+        card.querySelector('.val-card-qty').value = c.qty;
+        if(card.querySelector('.val-count')) card.querySelector('.val-count').value = c.count;
+        if(card.querySelector('.val-len')) card.querySelector('.val-len').value = c.len;
+        if(card.querySelector('.val-dop')) card.querySelector('.val-dop').value = c.dop;
+        if(card.querySelector('.chk-density')) card.querySelector('.chk-density').checked = c.density;
+        if(card.querySelector('.chk-gabarit')) card.querySelector('.chk-gabarit').checked = c.gabarit;
+        if(card.querySelector('.chk-kran')) card.querySelector('.chk-kran').checked = c.kran;
+        if(card.querySelector('.chk-pv')) card.querySelector('.chk-pv').checked = c.pv;
+        if(card.querySelector('.chk-2weld')) card.querySelector('.chk-2weld').checked = c.w2;
+        if(card.querySelector('.chk-2build')) card.querySelector('.chk-2build').checked = c.b2;
+        if(card.querySelector('.chk-2clean')) card.querySelector('.chk-2clean').checked = c.c2;
+        card.querySelector('.chk-has-drill').checked = c.hasDrill;
+        card.querySelector('.val-machine').value = c.machine;
+        card.querySelector('.val-drill-diam').value = c.drillDiam;
+        card.querySelector('.val-holes-qty').value = c.holesQty;
+        card.querySelector('.val-holes-depth').value = c.holesDepth;
+        card.querySelector('.val-holes-passes').value = c.holesPasses;
+        card.querySelector('.chk-drill-mark').checked = c.drillMark;
+        card.querySelector('.chk-drill-thread').checked = c.drillThread;
+        card.querySelector('.val-thread-size').value = c.threadSize;
+        card.querySelector('.chk-drill-deep').checked = c.drillDeep;
+
+        toggleDrillBlock(cardIdIndex);
+    });
+    runCalc();
+}
+
+function renderHistoryButtons() {
+    const stack = document.getElementById('history_list_stack');
+    if(!stack) return;
+    stack.innerHTML = "";
+    globalHistory.forEach((h, idx) => {
+        const itemTitle = h.title || `Прорахунок #${idx+1}`;
+        const li = document.createElement('li');
+        li.className = "history-btn";
+        li.onclick = function() { loadFromHistory(idx); };
+        li.innerHTML = `📄 ${itemTitle} <span style="color:var(--danger); font-weight:bold; margin-left:5px;" onclick="deleteFromHistory(${idx}, event)">✖</span>`;
+        stack.appendChild(li);
+    });
+}
+
+function saveToHistory() {
+    const dataSnapshot = packCurrentState();
+    if(globalHistory.length >= 10) globalHistory.shift();
+    globalHistory.push(dataSnapshot);
+    localStorage.setItem('ipc_history', JSON.stringify(globalHistory));
+    renderHistoryButtons();
+}
+
+function loadFromHistory(index) {
+    const state = globalHistory[index];
+    if(state) { unpackState(state); }
+}
+
+function deleteFromHistory(index, event) {
+    event.stopPropagation();
+    globalHistory.splice(index, 1);
+    localStorage.setItem('ipc_history', JSON.stringify(globalHistory));
+    renderHistoryButtons();
+}
+
+function setAppMode(mode) {
+    currentAppMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    
+    if(mode === 'drill') {
+        document.getElementById('m_btn_drill').classList.add('active');
+        document.querySelectorAll('.section-weld-only').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.card').forEach(card => {
+            card.querySelector('.chk-has-drill').checked = true;
+            card.querySelector('.card-drill-block').classList.add('active');
+        });
+    } else {
+        document.getElementById('m_btn_weld').classList.add('active');
+        document.querySelectorAll('.section-weld-only').forEach(el => el.style.display = 'flex');
+        document.querySelectorAll('.card').forEach(card => {
+            if(!card.querySelector('.chk-has-drill').checked) {
+                card.querySelector('.card-drill-block').classList.remove('active');
+            }
+        });
+    }
+    runCalc();
+}
+
+function setReportMode(mode) {
+    if (mode === 'client') {
+        document.body.className = "report-client";
+        document.getElementById('btn_mode_internal').classList.remove('active');
+        document.getElementById('btn_mode_client').classList.add('active');
+    } else {
+        document.body.className = "report-internal";
+        document.getElementById('btn_mode_client').classList.remove('active');
+        document.getElementById('btn_mode_internal').classList.add('active');
+    }
+    runCalc();
+}
+
+function toggleBlockPrint(className, checkbox) {
+    if(!checkbox.checked) {
+        document.body.classList.add(className);
+    } else {
+        document.body.classList.remove(className);
+    }
+}
+
+function syncTitle() {
+    const prodTitle = document.getElementById('prod_title');
+    const mirrorTitle = document.getElementById('mirror_title');
+    if (prodTitle && mirrorTitle) {
+        mirrorTitle.innerText = prodTitle.value || "...";
+    }
+}
+
+function runCalc() {
+    syncTitle();
+    const dict = dictionary[currentLanguage];
+
+    const dateField = document.getElementById('c_date');
+    if(dateField && !dateField.value) {
+        const today = new Date();
+        dateField.value = today.toLocaleDateString('uk-UA');
+    }
+
+    const bRazdelka = parseFloat(document.getElementById('b_razdelka').value) || 0;
+    const bSborkaDet = parseFloat(document.getElementById('b_sborka_det').value) || 0;
+    const bSborkaShva = parseFloat(document.getElementById('b_sborka_shva').value) || 0;
+    const bObvarka = parseFloat(document.getElementById('b_obvarka').value) || 0;
+    const bZachistka = parseFloat(document.getElementById('b_zachistka').value) || 0;
+
+    const bDrill = parseFloat(document.getElementById('b_drill').value) || 0;
+    const bThread = parseFloat(document.getElementById('b_thread').value) || 0;
+    const bMark = parseFloat(document.getElementById('b_mark').value) || 0;
+    const bSetup = parseFloat(document.getElementById('b_setup').value) || 0;
+    const bKPv = parseFloat(document.getElementById('b_k_pv').value) || 1.0;
+
+    const tWelder = parseFloat(document.getElementById('b_t_welder').value) || 0;
+    const tDriller = parseFloat(document.getElementById('b_t_driller').value) || 0;
+    const tClient = parseFloat(document.getElementById('b_t_client').value) || 0;
+    const tElectr = parseFloat(document.getElementById('b_t_electr').value) || 0;
+    const tRent = parseFloat(document.getElementById('b_t_rent').value) || 0;
+
+    let accumWeldH = 0, accumDrillH = 0;
+    let accumZpWorker = 0, accumZpDriller = 0;
+    let accumWire = 0, accumGas = 0, accumDiscs = 0, accumKw = 0;
+
+    const cards = document.querySelectorAll('.card');
+    
+    cards.forEach(card => {
+        const currentId = card.id.replace('c_item_', '');
+        const cardQty = parseFloat(card.querySelector('.val-card-qty').value) || 1;
+        
+        const count = (currentAppMode === 'drill') ? 0 : (parseFloat(card.querySelector('.val-count').value) || 0);
+        const len = (currentAppMode === 'drill') ? 0 : (parseFloat(card.querySelector('.val-len').value) || 0);
+        const dop = (currentAppMode === 'drill') ? 0 : (parseFloat(card.querySelector('.val-dop').value) || 0);
+
+        let kWeld = 1.0;
+        if(card.querySelector('.chk-density') && card.querySelector('.chk-density').checked) kWeld *= 1.05;
+        if(card.querySelector('.chk-gabarit') && card.querySelector('.chk-gabarit').checked) kWeld *= 1.3;
+        if(card.querySelector('.chk-kran') && card.querySelector('.chk-kran').checked) kWeld *= 1.1;
+        if(card.querySelector('.chk-pv') && card.querySelector('.chk-pv').checked) kWeld *= 1.4;
+
+        const k2Build = (card.querySelector('.chk-2build') && card.querySelector('.chk-2build').checked) ? 1.5 : 1.0;
+        const k2Clean = (card.querySelector('.chk-2clean') && card.querySelector('.chk-2clean').checked) ? 1.7 : 1.0;
+        const k2Weld = (card.querySelector('.chk-2weld') && card.querySelector('.chk-2weld').checked) ? 1.6 : 1.0;
+
+        const hObvarka = (currentAppMode === 'drill') ? 0 : ((len * bObvarka * kWeld * k2Weld) / 60);
+
+        const hRazdelka = (len * bRazdelka) / 60;
+        const hSborka = (((count * bSborkaDet) + (len * bSborkaShva)) * k2Build) / 60;
+        const hZachistka = (len * bZachistka * k2Clean) / 60;
+        const hDop = dop / 60;
+        const hWeldRest = hRazdelka + hSborka + hZachistka + hDop;
+
+        let singleDrillHours = 0;
+        let singleKw = 0;
+        
+        let hasDrill = card.querySelector('.chk-has-drill').checked;
+        let drillDiam = card.querySelector('.val-drill-diam') ? card.querySelector('.val-drill-diam').value : "10";
+        let threadSize = card.querySelector('.val-thread-size') ? card.querySelector('.val-thread-size').value : "10";
+        let isThreadChecked = card.querySelector('.chk-drill-thread').checked;
+        
+        const threadContainer = card.querySelector('.thread-size-container');
+        if(threadContainer) {
+            threadContainer.style.display = isThreadChecked ? "block" : "none";
+        }
+
+        let drillQty = 0, drillDepth = 0;
+
+        if (hasDrill) {
+            drillQty = parseFloat(card.querySelector('.val-holes-qty').value) || 0;
+            drillDepth = parseFloat(card.querySelector('.val-holes-depth').value) || 0;
+            const hPasses = parseFloat(card.querySelector('.val-holes-passes').value) || 1;
+            const needMark = card.querySelector('.chk-drill-mark').checked;
+            const isDeep = card.querySelector('.chk-drill-deep').checked;
+            const machineType = card.querySelector('.val-machine').value;
+
+            let kMachineTime = 1.0, machinePower = 4.0;
+            if (machineType === 'magnetic') { kMachineTime = 1.25; machinePower = 1.8; }
+            const kDeepModifier = isDeep ? 1.35 : 1.0;
+
+            const tMarking = needMark ? (drillQty * bMark) : 0;
+            const tSetup = (hPasses + (isThreadChecked ? 1 : 0)) * bSetup;
+
+            let drillingFactor = 1.0;
+            for (let i = 2; i <= hPasses; i++) { drillingFactor += 0.7; }
+            
+            const tDrillingPure = drillQty * (drillDepth / 10) * bDrill * drillingFactor * kMachineTime * kDeepModifier;
+            const tThreadingPure = isThreadChecked ? (drillQty * (drillDepth / 10) * bThread * kMachineTime) : 0;
+
+            const tMachiningTotalMin = (tDrillingPure + tThreadingPure) * bKPv;
+            const tSetupTotalMin = tMarking + tSetup;
+
+            singleDrillHours = (tMachiningTotalMin + tSetupTotalMin) / 60;
+            singleKw = (tDrillingPure * bKPv / 60) * machinePower; 
+        }
+
+        const nodeWeldHoursTotal = hObvarka * cardQty;
+        const nodeLocksmithHoursTotal = hWeldRest * cardQty;
+        const nodeDrillHoursTotal = singleDrillHours * cardQty;
+        
+        const totalCardHoursTotal = nodeWeldHoursTotal + nodeLocksmithHoursTotal + nodeDrillHoursTotal;
+
+        const cardWorkerHoursTotal = nodeWeldHoursTotal + nodeLocksmithHoursTotal;
+        const cardZpWorkerTotal = cardWorkerHoursTotal * tWelder;
+        const cardZpDrillerTotal = nodeDrillHoursTotal * tDriller;
+
+        const singleTotalKw = (hObvarka * 6.0) + (hWeldRest * 0.9) + singleKw;
+        const nodeTotalKwTotal = singleTotalKw * cardQty;
+        
+        const nodeTotalClientCostTotal = (totalCardHoursTotal * tClient) + (totalCardHoursTotal * tRent) + (nodeTotalKwTotal * tElectr);
+
+        card.querySelector('.out-card-h').innerText = totalCardHoursTotal.toFixed(2) + " " + dict.unit_hours;
+        card.querySelector('.out-card-zp-weld').innerText = formatMoney(cardZpWorkerTotal);
+        card.querySelector('.out-card-zp-dril').innerText = formatMoney(cardZpDrillerTotal);
+        card.querySelector('.out-card-client-cost').innerText = formatMoney(nodeTotalClientCostTotal);
+        
+        const specsList = document.getElementById(`specs_list_${currentId}`);
+        if (specsList) {
+            let htmlList = "";
+            if (count > 0) htmlList += `<li>${dict.spec_details}: ${count} ${dict.unit_pcs}</li>`;
+            if (len > 0) htmlList += `<li>${dict.spec_welds}: ${len.toFixed(1)} ${dict.unit_m}</li>`;
+            if (dop > 0) htmlList += `<li>${dict.spec_locksmith}: ${dop} ${dict.unit_min}</li>`;
+            
+            if (hasDrill && drillQty > 0) {
+                htmlList += `<li>${dict.spec_drill_hole} Ø${drillDiam} ${dict.unit_mm}: ${drillQty} ${dict.unit_pcs} (${drillDepth} ${dict.unit_mm})</li>`;
+                if (isThreadChecked) {
+                    htmlList += `<li>${dict.spec_thread_cut} М${threadSize}: ${drillQty} ${dict.unit_holes}</li>`;
+                }
+            }
+            if (cardQty > 1) {
+                htmlList += `<li style="font-weight: bold; color: var(--warning);">${dict.spec_node_qty}: ${cardQty} ${dict.unit_pcs}</li>`;
+            }
+            specsList.innerHTML = htmlList;
+        }
+
+        accumWeldH += nodeWeldHoursTotal;
+        accumDrillH += (nodeLocksmithHoursTotal + nodeDrillHoursTotal);
+        accumZpWorker += cardZpWorkerTotal;
+        accumZpDriller += cardZpDrillerTotal;
+        accumWire += (len * 0.18 * cardQty);
+        accumGas += (len * 0.18 * 0.8 * cardQty);
+        accumDiscs += (len * 0.2 * cardQty);
+        accumKw += nodeTotalKwTotal;
+    });
+
+    const grandTotalHoursAll = accumWeldH + accumDrillH;
+    const costElectricity = accumKw * tElectr;
+    const costRentTotal = grandTotalHoursAll * tRent;
+
+    const totalProductionOverheads = costRentTotal + costElectricity;
+    const costClientBase = grandTotalHoursAll * tClient;
+    const costClientTotalFinal = costClientBase + totalProductionOverheads;
+
+    const grandMarginAll = costClientTotalFinal - (accumZpWorker + accumZpDriller) - totalProductionOverheads;
+
+    document.getElementById('out_hours').innerText = grandTotalHoursAll.toFixed(2) + " " + dict.unit_hours;
+    document.getElementById('out_weld_h').innerText = accumWeldH.toFixed(2) + " " + dict.unit_hours;
+    document.getElementById('out_drill_h').innerText = accumDrillH.toFixed(2) + " " + dict.unit_hours;
+    document.getElementById('out_zp_weld').innerText = formatMoney(accumZpWorker);
+    document.getElementById('out_zp_dril').innerText = formatMoney(accumZpDriller);
+
+    document.getElementById('out_wire').innerText = accumWire.toFixed(2) + " кг";
+    document.getElementById('out_gas').innerText = accumGas.toFixed(2) + " м³";
+    document.getElementById('out_discs').innerText = accumDiscs.toFixed(2) + " " + dict.unit_pcs;
+    document.getElementById('out_kw').innerText = accumKw.toFixed(2) + " кВт";
+    document.getElementById('out_kw_cost').innerText = formatMoney(costElectricity);
+
+    document.getElementById('out_client_hours').innerText = formatMoney(costClientBase);
+    document.getElementById('out_client_rent').innerText = formatMoney(totalProductionOverheads);
+    document.getElementById('out_client_total').innerText = formatMoney(costClientTotalFinal);
+    document.getElementById('out_margin').innerText = formatMoney(grandMarginAll);
+
+    // Обработка ссылки и QR-кода (формат: Название | URL)
+    const rawLinkInput = document.getElementById('c_link').value;
+    const qrBox = document.getElementById('print_qr_box');
+    const qrContainer = document.getElementById('print_qr_holder');
+    const qrLabel = document.getElementById('print_qr_label');
+    const printRatesCorner = document.getElementById('print_rates_corner');
+
+    let labelText = "";
+    let realUrl = "";
+
+    if(rawLinkInput.includes('|')) {
+        let parts = rawLinkInput.split('|');
+        labelText = parts[0].trim();
+        realUrl = parts[1].trim();
+    } else {
+        labelText = rawLinkInput.trim();
+        realUrl = rawLinkInput.trim();
+    }
+
+    if(printRatesCorner) {
+        let pRate = document.getElementById('rate_pln').value;
+        let eRate = document.getElementById('rate_eur').value;
+        let uRate = document.getElementById('rate_usd').value;
+        printRatesCorner.innerText = `Курси: 1 PLN = ${pRate} грн | 1 EUR = ${eRate} грн | 1 USD = ${uRate} грн`;
+    }
+
+    if(qrContainer && qrLabel && qrBox) {
+        qrContainer.innerHTML = "";
+        if(realUrl !== "") {
+            new QRCode(qrContainer, { text: realUrl, width: 75, height: 75 });
+            qrLabel.innerText = labelText || realUrl;
+            qrBox.style.display = "block";
+        } else {
+            qrBox.style.display = "none";
+        }
+    }
+
+    const currentSnapshot = packCurrentState();
+    localStorage.setItem('ipc_autosave', JSON.stringify(currentSnapshot));
+}
+
+window.onload = function() {
+    const savedLang = localStorage.getItem('ipc_lang') || 'ua';
+    
+    const savedHistory = localStorage.getItem('ipc_history');
+    if(savedHistory) { globalHistory = JSON.parse(savedHistory); renderHistoryButtons(); }
+
+    const savedAutosave = localStorage.getItem('ipc_autosave');
+    if(savedAutosave) { unpackState(JSON.parse(savedAutosave)); }
+
+    changeLang(savedLang);
+};
+    if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('Service Worker зарегистрирован!', reg))
+      .catch(err => console.log('Ошибка регистрации SW:', err));
+  });
+}
+</script>
+</body>
+</html>
