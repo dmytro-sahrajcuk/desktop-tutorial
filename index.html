@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="ua">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Industrial Production Calculator Pro</title>
+    <!-- Подключаем библиотеку для генерации QR-кодов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
         --bg-color: #090a0f;
@@ -42,23 +42,31 @@
     .history-btn { background: var(--card-inner); border: 1px solid var(--border); color: #fff; padding: 4px 10px; border-radius: 2px; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.1s; user-select: none; }
     .history-btn:hover { border-color: var(--primary); }
 
-    /* --- СТРУКТУРНАЯ СЕТКА ШАПКИ --- */
-.header-area { 
-    margin-bottom: 10px; 
-    background: var(--card-bg); 
-    padding: 10px; 
-    border-radius: 3px; 
-    border: 1px solid var(--border); 
-}
-    .title-container { text-align: center; margin-bottom: 15px; }
-    .title-input { background: transparent; border: none; border-bottom: 1px solid var(--primary); color: #fff; font-size: 20px; font-weight: bold; text-align: center; width: 100%; max-width: 550px; padding: 4px; }
-    .title-input:focus { outline: none; border-color: var(--success); }
+    /* --- СЕТКА ШАПКИ --- */
+    .header-area { margin-bottom: 20px; background: var(--card-bg); padding: 20px; border-radius: 3px; border: 1px solid var(--border); }
+    .main-header-grid { display: flex; justify-content: space-between; align-items: flex-start; gap: 25px; width: 100%; }
+    .header-left-col { flex: 1; }
     
-    .company-grid { display: flex; gap: 15px; max-width: 1100px; margin: 0 auto; text-align: left; flex-wrap: wrap; }
-    .comp-cell { flex: 1 1 200px; background: var(--card-inner); border: 1px solid var(--border); padding: 6px 8px; border-radius: 2px; }
+    .main-title-cell { background: var(--card-inner); border: 1px solid var(--border); padding: 10px 12px; border-radius: 2px; width: 100%; margin-bottom: 12px; }
+    .main-title-cell label { display: block; font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
+    .title-input { background: transparent; border: none; color: #fff; font-size: 18px; font-weight: bold; text-align: left; width: 100%; padding: 2px 0; }
+    .title-input:focus { outline: none; }
+    
+    .header-right-col { display: flex; flex-direction: column; align-items: flex-end; width: 320px; gap: 12px; }
+    .contacts-stack { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    
+    .comp-cell { background: var(--card-inner); border: 1px solid var(--border); padding: 6px 8px; border-radius: 2px; width: 100%; }
     .comp-cell label { display: block; font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
     .comp-cell input { background: transparent; border: none; color: #fff; font-size: 12px; width: 100%; font-weight: bold; }
     .comp-cell input:focus { outline: none; }
+
+    .header-right-col input { text-align: right; }
+    .header-right-col .comp-cell label { text-align: right; }
+
+    #print_qr_box { text-align: center; display: none; background: #fff; padding: 6px; border-radius: 2px; align-self: center; }
+    #print_qr_holder { width: 120px; height: 120px; margin: 0 auto; }
+    #print_qr_label { font-size: 10px; color: #000; margin-top: 5px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; text-align: center; }
+    #print_rates_corner { display: none; font-size: 9px; color: #444; margin-bottom: 8px; border-bottom: 1px solid #aaa; padding-bottom: 3px; }
 
     /* КАЛЬКУЛЯТОР */
     .widget-calc { position: fixed; top: 120px; right: 55px; width: 300px; background: var(--card-bg); border: 1px solid var(--primary); border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.9); z-index: 9999; display: none; padding: 12px; }
@@ -73,7 +81,7 @@
     .wcalc-btn.op { background: #1e293b; color: #38bdf8; }
     .wcalc-btn.fn { background: #0f172a; color: var(--success); font-size: 10px; }
     .wcalc-btn.mem { background: #1e1b4b; color: var(--warning); font-size: 10px; }
-    .wcalc-btn.eq { background: var(--success); color: #fff; grid-column: span 2; }
+    .wcalc-btn.eq { background: #059669; color: #fff; grid-column: span 2; }
 
     .main-wrapper { max-width: 1450px; margin: 0 auto; display: flex; flex-direction: row; gap: 15px; align-items: flex-start; }
     .col-left { width: 58%; }
@@ -156,15 +164,16 @@
         .main-wrapper { display: block !important; width: 100% !important; }
         .col-left, .col-right { width: 100% !important; }
         .btn, .btn-red, .card-switches, .box-title button, #base_panel_block, .report-toggle-container, .card-inputs, .top-ctrl-bar, .mode-switcher, .history-panel, .print-toggle-label, .currency-rates-panel { display: none !important; }
-        #cell_link_container { display: none !important; }
         .card-drill-block { display: none !important; }
-        .title-input { border: none !important; color: #000 !important; font-size: 20px !important; width: 100% !important; text-align: left !important; pointer-events: none !important; }
+        
         .header-area { background: #fff !important; border: none !important; padding: 0 0 10px 0 !important; margin-bottom: 10px !important; border-bottom: 1px solid #000 !important; }
-        .comp-cell { background: #fff !important; border: none !important; padding: 2px !important; }
-        .comp-cell label { color: #555 !important; font-size: 8px !important; }
-        .comp-cell input { color: #000 !important; font-size: 12px !important; pointer-events: none !important; }
-        #print_qr_box { display: block !important; }
+        .main-title-cell, .comp-cell { background: #fff !important; border: none !important; padding: 2px !important; }
+        .main-title-cell label, .comp-cell label { color: #555 !important; font-size: 8px !important; }
+        .title-input, .comp-cell input { border: none !important; color: #000 !important; font-size: 14px !important; background: transparent !important; pointer-events: none !important; }
+        
+        #print_qr_box { display: block !important; border: none !important; background: #fff !important; }
         #print_rates_corner { display: block !important; }
+        
         .box { background: #fff !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
         .box-title { color: #000 !important; border-bottom: 1px solid #000 !important; font-size: 15px !important; margin-top: 15px !important; }
         .card { background: #fff !important; border: 1px solid #bbb !important; color: #000 !important; page-break-inside: avoid; padding: 10px !important; margin-bottom: 10px !important; }
@@ -183,6 +192,7 @@
         .res-box.blue-grad, .res-box.purple-grad { background: #fff !important; border: 1px solid #bbb !important; border-left: 4px solid #000 !important; color: #000 !important; }
         body.report-client .internal-field { display: none !important; }
         body.report-client .purple-grad { display: none !important; }
+        .header-left-col .comp-cell:has(#qr_custom_label_input), .header-left-col .comp-cell:has(#c_link) { display: none !important; }
     }
 </style>
 </head>
@@ -234,30 +244,45 @@
         <button class="btn btn-success" style="font-size: 25px; padding: 6px 10px;" onclick="window.print()" id="lbl_print_btn">🖨️ Сформувати звіт (PDF / Печать)</button>
     </div>
 
-    <!-- Основная двухколоночная сетка -->
+    <!-- Основная двухколоночная сетка шапки -->
     <div class="main-header-grid">
         
-        <!-- ЛЕВАЯ ЧАСТЬ: Название изделия и Компания -->
+        <!-- ЛЕВАЯ ЧАСТЬ -->
         <div class="header-left-col">
-            <!-- 1. Компания-исполнитель (Крупный инпут по центру/левому краю) -->
-           <div class="main-title-cell" style="margin-bottom: 20px;">   
-               <label>Компанія-виконавець</label>
-               <input type="text" class="title-input" id="prod_title" value="" placeholder="Введіть компанію..." oninput="runCalc()">
-            </div>
-
-            <!-- 2. Название изделия -->
-            <div class="main-title-cell" style="margin-bottom: 15px;">
-                <label id="lbl_c_name">Назва виробу / замовлення</label>            
+            <!-- 1. Название изделия -->
+            <div class="main-title-cell">
+                <label id="lbl_prod_title_text">Назва виробу / замовлення</label>            
                 <input type="text" class="title-input" id="prod_title" value="" placeholder="Введіть назву виробу..." oninput="runCalc()">
             </div>
 
-            <!-- Дата формирования (Верхний правый угол) -->
+            <!-- 2. Компания-исполнитель -->
+           <div class="comp-cell" style="margin-bottom: 12px;">   
+               <label id="lbl_c_name">Компанія-виконавець</label>
+               <input type="text" id="c_name" value="" placeholder="Введіть компанію..." oninput="runCalc()">
+            </div>
+
+            <!-- 3. Подпись под QR -->
+            <div class="comp-cell" style="margin-bottom: 12px;">
+                <label id="lbl_qr_label_title">Підпис під QR-кодом (слово або мітка)</label>
+                <input type="text" id="qr_custom_label_input" placeholder="Введіть текст для QR..." oninput="document.getElementById('print_qr_label').innerText = this.value; runCalc();">
+            </div>
+
+            <!-- 4. Ссылка для QR-кода -->
+            <div class="comp-cell">
+                <label id="lbl_c_link">Посилання для QR-коду (https://...)</label>
+                <input type="text" id="c_link" placeholder="https://..." oninput="runCalc()">
+            </div>
+        </div>
+
+        <!-- ПРАВАЯ ЧАСТЬ -->
+        <div class="header-right-col">
+            <!-- Дата формирования -->
             <div class="comp-cell">
                 <label id="lbl_c_date">Дата формування</label>
                 <input type="text" id="c_date" readonly style="color: var(--warning); font-weight: bold;">
             </div>
 
-            <!-- 2. Столбик: Подготовил и Телефон -->
+            <!-- Контакты -->
             <div class="contacts-stack">
                 <div class="comp-cell">
                     <label id="lbl_c_worker">Розрахунок підготував</label>
@@ -269,6 +294,11 @@
                 </div>
             </div>
 
+            <!-- Блок QR-кода -->
+            <div id="print_qr_box">
+                <div id="print_qr_holder"></div>
+                <div id="print_qr_label"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -384,7 +414,8 @@
             </div>
         </div>
     </div>
-<div class="col-right">
+    
+    <div class="col-right">
         <div class="box" style="position: -webkit-sticky; position: sticky; top: 20px;">
             <div class="report-toggle-container">
                 <div class="toggle-btn active" id="btn_mode_internal" onclick="setReportMode('internal')">Внутрішній звіт цеху</div>
@@ -490,7 +521,7 @@
 
         <button class="wcalc-btn" onclick="wCalcNum('4')">4</button>
         <button class="wcalc-btn" onclick="wCalcNum('5')">5</button>
-        <button class="wcalc-btn" onclick="wCalcNum('6')">6</button>
+        <button class="wcalc-btn" onclick="wcalc-btn" onclick="wCalcNum('6')">6</button>
         <button class="wcalc-btn op" onclick="wCalcCmd('-')">-</button>
         <button class="wcalc-btn op" onclick="wCalcCmd('%')">%</button>
 
@@ -519,7 +550,7 @@ const dictionary = {
         lbl_save_hist: "💾 Зберегти в історію", lbl_hist_title: "Останні 10 прорахунків в пам'яті:",
         m_btn_weld: "🏭 Комплексні МК (Зварювання / Складання)", m_btn_drill: "🎯 Свердлильний участок (Тільки отвори)",
         lbl_c_name: "Компанія-виконавець", lbl_c_worker: "Розрахунок підготував", lbl_c_phone: "Телефон зв'язку",
-        lbl_c_link: "Назва та Посилання (Каталог / Сайт)", lbl_c_date: "Дата формування", lbl_rates_title: "Курси валют (до 1 грн):",
+        lbl_c_link: "Посилання для QR-коду (https://...)", lbl_c_date: "Дата формування", lbl_rates_title: "Курси валют (до 1 грн):",
         lbl_base_title: "1. Глобальна керована база (Нормативи та Ставки)", lbl_b_raz: "Обробка кромки хв/м",
         lbl_b_sbd: "Складання шт/хв", lbl_b_sbsh: "Прихоплення хв/м", lbl_b_obv: "Обварка хв/м", lbl_b_zac: "Зачистка хв/м",
         lbl_b_drl: "Свердл. хв/10мм", lbl_b_thr: "Різьба хв/10мм", lbl_b_mrk: "Розмітка отв. хв", lbl_b_stp: "Зміна інстр. хв",
@@ -553,7 +584,7 @@ const dictionary = {
         lbl_save_hist: "💾 Сохранить в историю", lbl_hist_title: "Последние 10 просчетов в памяти:",
         m_btn_weld: "🏭 Комплексные МК (Сварка / Сборка)", m_btn_drill: "🎯 Сверлильный участок (Только отверстия)",
         lbl_c_name: "Компания-исполнитель", lbl_c_worker: "Расчет подготовил", lbl_c_phone: "Телефон связи",
-        lbl_c_link: "Название и Ссылка (Каталог / Сайт)", lbl_c_date: "Дата формирования", lbl_rates_title: "Курсы валют (к 1 грн):",
+        lbl_c_link: "Ссылка для QR-кода (https://...)", lbl_c_date: "Дата формирования", lbl_rates_title: "Курсы валют (к 1 грн):",
         lbl_base_title: "1. Глобальная управляемая база (Нормативы и Ставки)", lbl_b_raz: "Обработка кромки мин/м",
         lbl_b_sbd: "Сборка шт/мин", lbl_b_sbsh: "Прихватка мин/м", lbl_b_obv: "Обварка мин/м", lbl_b_zac: "Зачистка мин/м",
         lbl_b_drl: "Свердл. мин/10мм", lbl_b_thr: "Резьба мин/10мм", lbl_b_mrk: "Разметка отв. мин", lbl_b_stp: "Смена инстр. мин",
@@ -587,7 +618,7 @@ const dictionary = {
         lbl_save_hist: "💾 Save to History", lbl_hist_title: "Last 10 calculations in memory:",
         m_btn_weld: "🏭 Complex Steel Structures (Welding / Assembly)", m_btn_drill: "🎯 Drilling Workshop (Holes Only)",
         lbl_c_name: "Executing Company", lbl_c_worker: "Calculated By", lbl_c_phone: "Contact Phone",
-        lbl_c_link: "Name & Link (Catalog / Site)", lbl_c_date: "Date of Issue", lbl_rates_title: "Currency rates (to 1 UAH):",
+        lbl_c_link: "QR Code Link (https://...)", lbl_c_date: "Date of Issue", lbl_rates_title: "Currency rates (to 1 UAH):",
         lbl_base_title: "1. Global Managed Database (Norms & Rates)", lbl_b_raz: "Edge preparation min/m",
         lbl_b_sbd: "Assembly pcs/min", lbl_b_sbsh: "Tack welding min/m", lbl_b_obv: "Full welding min/m", lbl_b_zac: "Grinding min/m",
         lbl_b_drl: "Drilling min/10mm", lbl_b_thr: "Threading min/10mm", lbl_b_mrk: "Marking min/pc", lbl_b_stp: "Tool change min",
@@ -621,7 +652,7 @@ const dictionary = {
         lbl_save_hist: "💾 Zapisz w historii", lbl_hist_title: "Ostatnie 10 kalkulacji w pamięci:",
         m_btn_weld: "🏭 Kompleksowe Konstrukcje (Spawanie / Montaż)", m_btn_drill: "🎯 Warsztat wiercenia (Tylko otwory)",
         lbl_c_name: "Wykonawca", lbl_c_worker: "Opracował", lbl_c_phone: "Telefon kontaktowy",
-        lbl_c_link: "Nazwa i Link (Katalog / Strona)", lbl_c_date: "Data utworzenia", lbl_rates_title: "Kursy walut (do 1 UAH):",
+        lbl_c_link: "Link do kodu QR (https://...)", lbl_c_date: "Data utworzenia", lbl_rates_title: "Kursy walut (do 1 UAH):",
         lbl_base_title: "1. Globalna baza norm i stawek", lbl_b_raz: "Ukośne przygotowanie min/m",
         lbl_b_sbd: "Montaż szt/min", lbl_b_sbsh: "Sczepianie min/m", lbl_b_obv: "Spawanie pełne min/m", lbl_b_zac: "Szlifowanie min/m",
         lbl_b_drl: "Wiercenie min/10mm", lbl_b_thr: "Gwintowanie min/10mm", lbl_b_mrk: "Trasowanie min/otwór", lbl_b_stp: "Wymiana narzędzia min",
@@ -655,7 +686,7 @@ const dictionary = {
         lbl_save_hist: "💾 In Historie speichern", lbl_hist_title: "Die letzten 10 Berechnungen im Speicher:",
         m_btn_weld: "🏭 Komplexe Stahlbauten (Schweißen / Montage)", m_btn_drill: "🎯 Bohrabteilung (Nur Löcher)",
         lbl_c_name: "Ausführendes Unternehmen", lbl_c_worker: "Berechnet von", lbl_c_phone: "Kontakttelefon",
-        lbl_c_link: "Name & Weblink (Katalog / Website)", lbl_c_date: "Ausstellungsdatum", lbl_rates_title: "Wechselkurse (zu 1 UAH):",
+        lbl_c_link: "QR-Code-Link (https://...)", lbl_c_date: "Ausstellungsdatum", lbl_rates_title: "Wechselkurse (zu 1 UAH):",
         lbl_base_title: "1. Globale verwaltete Datenbank (Normen & Sätze)", lbl_b_raz: "Kantenbearbeitung Min/m",
         lbl_b_sbd: "Montage Stk/Min", lbl_b_sbsh: "Heftschweißen Min/m", lbl_b_obv: "Vollschweißen Min/m", lbl_b_zac: "Schleifen Min/m",
         lbl_b_drl: "Bohren Min/10mm", lbl_b_thr: "Gewindeschneiden Min/10mm", lbl_b_mrk: "Anreißen Min/Stk", lbl_b_stp: "Werkzeugwechsel Min",
@@ -1028,6 +1059,7 @@ function packCurrentState() {
         c_worker: document.getElementById('c_worker').value,
         c_phone: document.getElementById('c_phone').value,
         c_link: document.getElementById('c_link').value,
+        qr_custom_label: document.getElementById('qr_custom_label_input').value,
         rate_pln: document.getElementById('rate_pln').value,
         rate_eur: document.getElementById('rate_eur').value,
         rate_usd: document.getElementById('rate_usd').value,
@@ -1058,6 +1090,10 @@ function unpackState(state) {
     document.getElementById('c_worker').value = state.c_worker || "";
     document.getElementById('c_phone').value = state.c_phone || "";
     document.getElementById('c_link').value = state.c_link || "";
+    if(state.qr_custom_label) {
+        document.getElementById('qr_custom_label_input').value = state.qr_custom_label;
+        document.getElementById('print_qr_label').innerText = state.qr_custom_label;
+    }
     if(state.rate_pln) document.getElementById('rate_pln').value = state.rate_pln;
     if(state.rate_eur) document.getElementById('rate_eur').value = state.rate_eur;
     if(state.rate_usd) document.getElementById('rate_usd').value = state.rate_usd;
@@ -1380,24 +1416,11 @@ function runCalc() {
     document.getElementById('out_client_total').innerText = formatMoney(costClientTotalFinal);
     document.getElementById('out_margin').innerText = formatMoney(grandMarginAll);
 
-    // Обработка ссылки и QR-кода (формат: Название | URL)
-    const rawLinkInput = document.getElementById('c_link').value;
+    // Обработка ссылки и QR-кода
+    const rawLinkInput = document.getElementById('c_link').value.trim();
     const qrBox = document.getElementById('print_qr_box');
     const qrContainer = document.getElementById('print_qr_holder');
-    const qrLabel = document.getElementById('print_qr_label');
     const printRatesCorner = document.getElementById('print_rates_corner');
-
-    let labelText = "";
-    let realUrl = "";
-
-    if(rawLinkInput.includes('|')) {
-        let parts = rawLinkInput.split('|');
-        labelText = parts[0].trim();
-        realUrl = parts[1].trim();
-    } else {
-        labelText = rawLinkInput.trim();
-        realUrl = rawLinkInput.trim();
-    }
 
     if(printRatesCorner) {
         let pRate = document.getElementById('rate_pln').value;
@@ -1406,11 +1429,10 @@ function runCalc() {
         printRatesCorner.innerText = `Курси: 1 PLN = ${pRate} грн | 1 EUR = ${eRate} грн | 1 USD = ${uRate} грн`;
     }
 
-    if(qrContainer && qrLabel && qrBox) {
+    if(qrContainer && qrBox) {
         qrContainer.innerHTML = "";
-        if(realUrl !== "") {
-            new QRCode(qrContainer, { text: realUrl, width: 75, height: 75 });
-            qrLabel.innerText = labelText || realUrl;
+        if(rawLinkInput !== "") {
+            new QRCode(qrContainer, { text: rawLinkInput, width: 120, height: 120 });
             qrBox.style.display = "block";
         } else {
             qrBox.style.display = "none";
@@ -1424,21 +1446,21 @@ function runCalc() {
 window.onload = function() {
     const savedLang = localStorage.getItem('ipc_lang') || 'ua';
     
+    // Восстанавливаем историю И сразу отрисовываем кнопки
     const savedHistory = localStorage.getItem('ipc_history');
-    if(savedHistory) { globalHistory = JSON.parse(savedHistory); renderHistoryButtons(); }
+    if(savedHistory) { 
+        globalHistory = JSON.parse(savedHistory); 
+        renderHistoryButtons(); 
+    }
 
+    // Восстанавливаем последний автосохраненный расчет
     const savedAutosave = localStorage.getItem('ipc_autosave');
-    if(savedAutosave) { unpackState(JSON.parse(savedAutosave)); }
+    if(savedAutosave) { 
+        unpackState(JSON.parse(savedAutosave)); 
+    }
 
     changeLang(savedLang);
 };
-    if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('Service Worker зарегистрирован!', reg))
-      .catch(err => console.log('Ошибка регистрации SW:', err));
-  });
-}
 </script>
 </body>
 </html>
