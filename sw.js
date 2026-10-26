@@ -1,6 +1,8 @@
 const CACHE_NAME = 'calc-v1';
 const assets = [
   './index.html',
+  './icon.png',
+  './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
 ];
 
