@@ -29,7 +29,6 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace, 'Segoe UI', Arial, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); padding: 15px; line-height: 1.4; }
-    
     .top-ctrl-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: var(--card-bg); padding: 10px 15px; border-radius: 3px; border: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
     .lang-switcher, .currency-switcher { display: flex; gap: 3px; align-items: center; }
     .lang-btn, .curr-btn { background: var(--card-inner); border: 1px solid var(--border); color: var(--text-muted); padding: 4px 10px; border-radius: 2px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.1s; }
@@ -42,14 +41,12 @@
     .mode-switcher { display: flex; gap: 6px; margin-bottom: 15px; justify-content: center; }
     .mode-btn { background: var(--card-bg); color: var(--text-muted); border: 1px solid var(--border); padding: 8px 16px; border-radius: 3px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.1s; }
     .mode-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    
     .history-panel { background: var(--card-bg); border: 1px solid var(--border); padding: 10px; border-radius: 3px; margin-bottom: 15px; }
     .history-title { font-size: 12px; font-weight: bold; color: var(--text-main); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .history-list { display: flex; gap: 6px; flex-wrap: wrap; list-style: none; }
     .history-btn { background: var(--card-inner); border: 1px solid var(--border); color: #fff; padding: 4px 10px; border-radius: 2px; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.1s; user-select: none; }
     .history-btn:hover { border-color: var(--primary); }
 
-    /* --- СЕТКА ШАПКИ --- */
     .header-area { margin-bottom: 20px; background: var(--card-bg); padding: 20px; border-radius: 3px; border: 1px solid var(--border); }
     .main-header-grid { display: flex; justify-content: space-between; align-items: flex-start; gap: 25px; width: 100%; }
     .header-left-col { flex: 1; }
@@ -75,7 +72,6 @@
     #print_qr_label { font-size: 10px; color: #000; margin-top: 5px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; text-align: center; }
     #print_rates_corner { display: none; font-size: 9px; color: #444; margin-bottom: 8px; border-bottom: 1px solid #aaa; padding-bottom: 3px; }
 
-    /* КАЛЬКУЛЯТОР */
     .widget-calc { position: fixed; top: 120px; right: 55px; width: 300px; background: var(--card-bg); border: 1px solid var(--primary); border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.9); z-index: 9999; display: none; padding: 12px; }
     .wcalc-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; cursor: move; color: var(--text-main); font-size: 12px; font-weight: bold; user-select: none; }
     .wcalc-screen-box { background: #000; border: 1px solid var(--border); border-radius: 2px; padding: 6px; margin-bottom: 8px; }
@@ -89,7 +85,6 @@
     .wcalc-btn.fn { background: #0f172a; color: var(--success); font-size: 10px; }
     .wcalc-btn.mem { background: #1e1b4b; color: var(--warning); font-size: 10px; }
     .wcalc-btn.eq { background: #059669; color: #fff; grid-column: span 2; }
-
     .main-wrapper { max-width: 1450px; margin: 0 auto; display: flex; flex-direction: row; gap: 15px; align-items: flex-start; }
     .col-left { width: 58%; }
     .col-right { width: 42%; position: -webkit-sticky; position: sticky; top: 15px; }
@@ -167,39 +162,52 @@
     @media (max-width: 950px) { .main-wrapper { flex-direction: column; } .col-left, .col-right { width: 100%; } }
     
     @media print {
-        body { background: #fff !important; color: #000 !important; padding: 0; }
-        .main-wrapper { display: block !important; width: 100% !important; }
+        body { background: #fff !important; color: #000 !important; padding: 0; font-size: 11px; }
+        .main-wrapper { display: block !important; width: 100% !important; gap: 0 !important; }
         .col-left, .col-right { width: 100% !important; }
         .btn, .btn-red, .card-switches, .box-title button, #base_panel_block, .report-toggle-container, .card-inputs, .top-ctrl-bar, .mode-switcher, .history-panel, .print-toggle-label, .currency-rates-panel { display: none !important; }
         .card-drill-block { display: none !important; }
         
-        .header-area { background: #fff !important; border: none !important; padding: 0 0 10px 0 !important; margin-bottom: 10px !important; border-bottom: 1px solid #000 !important; }
-        .main-title-cell, .comp-cell { background: #fff !important; border: none !important; padding: 2px !important; }
-        .main-title-cell label, .comp-cell label { color: #555 !important; font-size: 8px !important; }
-        .title-input, .comp-cell input { border: none !important; color: #000 !important; font-size: 14px !important; background: transparent !important; pointer-events: none !important; }
+        .header-area { background: #fff !important; border: none !important; padding: 0 0 6px 0 !important; margin-bottom: 6px !important; border-bottom: 1px solid #000 !important; }
+        .main-header-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 10px !important; }
+        .header-left-col { flex: 1 !important; }
+        .header-right-col { width: 220px !important; gap: 4px !important; }
         
-        #print_qr_box { display: block !important; border: none !important; background: #fff !important; }
-        #print_rates_corner { display: block !important; }
+        .main-title-cell, .comp-cell { background: #fff !important; border: none !important; padding: 1px 0 !important; margin-bottom: 2px !important; }
+        .main-title-cell label, .comp-cell label { color: #444 !important; font-size: 7px !important; margin-bottom: 1px !important; }
+        .title-input { border: none !important; color: #000 !important; font-size: 13px !important; background: transparent !important; pointer-events: none !important; padding: 0 !important; }
+        .comp-cell input { border: none !important; color: #000 !important; font-size: 11px !important; background: transparent !important; pointer-events: none !important; padding: 0 !important; text-align: left !important; }
+        .header-right-col input, .header-right-col .comp-cell label { text-align: right !important; }
         
-        .box { background: #fff !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
-        .box-title { color: #000 !important; border-bottom: 1px solid #000 !important; font-size: 15px !important; margin-top: 15px !important; }
-        .card { background: #fff !important; border: 1px solid #bbb !important; color: #000 !important; page-break-inside: avoid; padding: 10px !important; margin-bottom: 10px !important; }
-        .card-title { color: #000 !important; border: none !important; font-size: 14px !important; font-weight: bold !important; width: 100% !important; pointer-events: none !important; margin-bottom: 6px !important; }
+        .header-left-col .comp-cell:has(#qr_custom_label_input), 
+        .header-left-col .comp-cell:has(#c_link) { display: none !important; }
+
+        #print_qr_box { display: block !important; border: none !important; background: #fff !important; padding: 2px !important; margin-top: 2px !important; align-self: flex-end !important; }
+        #print_qr_holder { width: 80px !important; height: 80px !important; margin: 0 0 0 auto !important; }
+        #print_qr_holder img { width: 80px !important; height: 80px !important; }
+        #print_qr_label { font-size: 9px !important; color: #000 !important; margin-top: 2px !important; max-width: 90px !important; }
+        
+        #print_rates_corner { display: none !important; }
+        
+        .box { background: #fff !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 8px !important; }
+        .box-title { color: #000 !important; border-bottom: 1px solid #000 !important; font-size: 13px !important; margin-top: 8px !important; margin-bottom: 6px !important; padding-bottom: 2px !important; }
+        .card { background: #fff !important; border: 1px solid #bbb !important; color: #000 !important; page-break-inside: avoid; padding: 6px 8px !important; margin-bottom: 6px !important; }
+        .card-title { color: #000 !important; border: none !important; font-size: 12px !important; font-weight: bold !important; width: 100% !important; pointer-events: none !important; margin-bottom: 2px !important; padding: 0 !important; }
         .card-body-layout { display: block !important; }
-        .print-specs-container { display: block !important; margin-bottom: 6px !important; }
-        .print-specs-title { color: #000 !important; font-size: 12px !important; border-bottom: 1px dashed #888 !important; padding-bottom: 2px !important; }
-        .print-specs-list li { color: #222 !important; font-size: 11px !important; }
+        .print-specs-container { display: block !important; margin-bottom: 4px !important; }
+        .print-specs-title { color: #000 !important; font-size: 10px !important; border-bottom: 1px dashed #888 !important; padding-bottom: 1px !important; margin-bottom: 2px !important; }
+        .print-specs-list li { color: #222 !important; font-size: 10px !important; line-height: 1.3 !important; }
         .print-specs-list li::before { color: #000 !important; }
-        .card-footer { border-top: 1px solid #bbb !important; color: #000 !important; font-size: 12px !important; margin-top: 4px !important; padding-top: 4px !important; }
+        .card-footer { border-top: 1px solid #bbb !important; color: #000 !important; font-size: 10px !important; margin-top: 2px !important; padding-top: 2px !important; }
         .card-footer strong { color: #000 !important; }
-        .res-box { background: #fff !important; border: 1px solid #bbb !important; border-left: 4px solid #000 !important; color: #000 !important; margin-top: 10px !important; }
-        .res-title { color: #333 !important; font-weight: bold !important; }
-        .res-row { border-bottom: 1px dashed #bbb !important; color: #000 !important; }
+        
+        .res-box { background: #fff !important; border: 1px solid #bbb !important; border-left: 3px solid #000 !important; color: #000 !important; margin-top: 6px !important; margin-bottom: 6px !important; padding: 6px !important; }
+        .res-title { color: #333 !important; font-weight: bold !important; font-size: 9px !important; margin-bottom: 3px !important; }
+        .res-row { border-bottom: 1px dashed #ccc !important; color: #000 !important; padding: 2px 0 !important; font-size: 10px !important; }
         .res-val { color: #000 !important; }
-        .res-box.blue-grad, .res-box.purple-grad { background: #fff !important; border: 1px solid #bbb !important; border-left: 4px solid #000 !important; color: #000 !important; }
+        .res-box.blue-grad, .res-box.purple-grad { background: #fff !important; border: 1px solid #bbb !important; border-left: 3px solid #000 !important; color: #000 !important; }
         body.report-client .internal-field { display: none !important; }
         body.report-client .purple-grad { display: none !important; }
-        .header-left-col .comp-cell:has(#qr_custom_label_input), .header-left-col .comp-cell:has(#c_link) { display: none !important; }
     }
 </style>
 </head>
@@ -246,50 +254,39 @@
 <div class="header-area">
     <div id="print_rates_corner"></div>
     
-    <!-- Кнопка печати -->
     <div style="text-align: center; margin-bottom: 6px;" class="top-ctrl-bar">
         <button class="btn btn-success" style="font-size: 25px; padding: 6px 10px;" onclick="window.print()" id="lbl_print_btn">🖨️ Сформувати звіт (PDF / Печать)</button>
     </div>
 
-    <!-- Основная двухколоночная сетка шапки -->
     <div class="main-header-grid">
-        
-        <!-- ЛЕВАЯ ЧАСТЬ -->
         <div class="header-left-col">
-            <!-- 1. Название изделия -->
             <div class="main-title-cell">
                 <label id="lbl_prod_title_text">Назва виробу / замовлення</label>            
                 <input type="text" class="title-input" id="prod_title" value="" placeholder="Введіть назву виробу..." oninput="runCalc()">
             </div>
 
-            <!-- 2. Компания-исполнитель -->
            <div class="comp-cell" style="margin-bottom: 12px;">   
                <label id="lbl_c_name">Компанія-виконавець</label>
                <input type="text" id="c_name" value="" placeholder="Введіть компанію..." oninput="runCalc()">
             </div>
 
-            <!-- 3. Подпись под QR -->
             <div class="comp-cell" style="margin-bottom: 12px;">
                 <label id="lbl_qr_label_title">Підпис під QR-кодом (слово або мітка)</label>
                 <input type="text" id="qr_custom_label_input" placeholder="Введіть текст для QR..." oninput="document.getElementById('print_qr_label').innerText = this.value; runCalc();">
             </div>
 
-            <!-- 4. Ссылка для QR-кода -->
             <div class="comp-cell">
                 <label id="lbl_c_link">Посилання для QR-коду (https://...)</label>
                 <input type="text" id="c_link" placeholder="https://..." oninput="runCalc()">
             </div>
         </div>
 
-        <!-- ПРАВАЯ ЧАСТЬ -->
         <div class="header-right-col">
-            <!-- Дата формирования -->
             <div class="comp-cell">
                 <label id="lbl_c_date">Дата формування</label>
                 <input type="text" id="c_date" readonly style="color: var(--warning); font-weight: bold;">
             </div>
 
-            <!-- Контакты -->
             <div class="contacts-stack">
                 <div class="comp-cell">
                     <label id="lbl_c_worker">Розрахунок підготував</label>
@@ -301,7 +298,6 @@
                 </div>
             </div>
 
-            <!-- Блок QR-кода -->
             <div id="print_qr_box">
                 <div id="print_qr_holder"></div>
                 <div id="print_qr_label"></div>
@@ -309,7 +305,6 @@
         </div>
     </div>
 </div>
-
 <div class="main-wrapper">
     <div class="col-left">
         <div class="box" id="base_panel_block">
@@ -421,7 +416,6 @@
             </div>
         </div>
     </div>
-    
     <div class="col-right">
         <div class="box" style="position: -webkit-sticky; position: sticky; top: 20px;">
             <div class="report-toggle-container">
@@ -491,7 +485,6 @@
     </div>
 </div>
 
-<!-- РОЗШИРЕНИЙ ІНЖЕНЕРНИЙ КАЛЬКУЛЯТОР -->
 <div class="widget-calc" id="w_calculator">
     <div class="wcalc-head" onmousedown="dragWidgetCalc(event)">
         <span id="lbl_wcalc_title">🧮 Професійний інженерний калькулятор</span>
@@ -543,7 +536,6 @@
         <button class="wcalc-btn eq" onclick="wCalcEq()">=</button>
     </div>
 </div>
-
 <script>
 let cardIdIndex = 1;
 let currentLanguage = 'ua';
@@ -724,7 +716,6 @@ const dictionary = {
         spec_details: "Anzahl der Teile", spec_welds: "Schweißnahtlänge", spec_locksmith: "Schlosserarbeiten", spec_drill_hole: "Bohren von Löchern", spec_thread_cut: "Metrisches Gewindeschneiden", spec_node_qty: "Menge identischer Knoten"
     }
 };
-
 function changeLang(lang) {
     currentLanguage = lang;
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
@@ -923,7 +914,6 @@ function toggleDrillBlock(id) {
     runCalc();
 }
 
-/* ЛОГІКА ПРОФЕСІЙНОГО ІНЖЕНЕРНОГО КАЛЬКУЛЯТОРА */
 function toggleWidgetCalc() {
     const calc = document.getElementById('w_calculator');
     if (!calc) return;
@@ -1028,7 +1018,6 @@ function dragWidgetCalc(e) {
         document.onmouseup = null;
     };
 }
-
 function packCurrentState() {
     const cardsData = [];
     document.querySelectorAll('.card').forEach(card => {
@@ -1423,7 +1412,6 @@ function runCalc() {
     document.getElementById('out_client_total').innerText = formatMoney(costClientTotalFinal);
     document.getElementById('out_margin').innerText = formatMoney(grandMarginAll);
 
-    // Обработка ссылки и QR-кода
     const rawLinkInput = document.getElementById('c_link').value.trim();
     const qrBox = document.getElementById('print_qr_box');
     const qrContainer = document.getElementById('print_qr_holder');
@@ -1453,14 +1441,12 @@ function runCalc() {
 window.onload = function() {
     const savedLang = localStorage.getItem('ipc_lang') || 'ua';
     
-    // Восстанавливаем историю И сразу отрисовываем кнопки
     const savedHistory = localStorage.getItem('ipc_history');
     if(savedHistory) { 
         globalHistory = JSON.parse(savedHistory); 
         renderHistoryButtons(); 
     }
 
-    // Восстанавливаем последний автосохраненный расчет
     const savedAutosave = localStorage.getItem('ipc_autosave');
     if(savedAutosave) { 
         unpackState(JSON.parse(savedAutosave)); 
