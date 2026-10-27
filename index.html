@@ -161,58 +161,66 @@
 
     @media (max-width: 950px) { .main-wrapper { flex-direction: column; } .col-left, .col-right { width: 100%; } }
     
-    @media print {
-        body { background: #fff !important; color: #000 !important; padding: 0; font-size: 11px; }
-        .main-wrapper { display: block !important; width: 100% !important; gap: 0 !important; }
-        .col-left, .col-right { width: 100% !important; }
-        .btn, .btn-red, .card-switches, .box-title button, #base_panel_block, .report-toggle-container, .card-inputs, .top-ctrl-bar, .mode-switcher, .history-panel, .print-toggle-label, .currency-rates-panel { display: none !important; }
-        .card-drill-block { display: none !important; }
-        
-        .header-area { background: #fff !important; border: none !important; padding: 0 0 6px 0 !important; margin-bottom: 6px !important; border-bottom: 1px solid #000 !important; }
-        .main-header-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 10px !important; }
-        .header-left-col { flex: 1 !important; }
-        .header-right-col { width: 220px !important; gap: 4px !important; }
-        
-        .main-title-cell, .comp-cell { background: #fff !important; border: none !important; padding: 1px 0 !important; margin-bottom: 2px !important; }
-        .main-title-cell label, .comp-cell label { color: #444 !important; font-size: 7px !important; margin-bottom: 1px !important; }
-        .title-input { border: none !important; color: #000 !important; font-size: 13px !important; background: transparent !important; pointer-events: none !important; padding: 0 !important; }
-        .comp-cell input { border: none !important; color: #000 !important; font-size: 11px !important; background: transparent !important; pointer-events: none !important; padding: 0 !important; text-align: left !important; }
-        .header-right-col input, .header-right-col .comp-cell label { text-align: right !important; }
-        
-        .header-left-col .comp-cell:has(#qr_custom_label_input), 
-        .header-left-col .comp-cell:has(#c_link) { display: none !important; }
+@media print {
+    body { background: #fff !important; color: #000 !important; padding: 0; font-size: 11px; }
+    .main-wrapper { display: block !important; width: 100% !important; gap: 0 !important; }
+    .col-left, .col-right { width: 100% !important; }
+    .btn, .btn-red, .card-switches, .box-title button, #base_panel_block, .report-toggle-container, .card-inputs, .top-ctrl-bar, .mode-switcher, .history-panel, .print-toggle-label, .currency-rates-panel { display: none !important; }
+    .card-drill-block { display: none !important; }
+    
+    /* Шапка в три колонки для заполнения пустого пространства посредине */
+    .header-area { background: #fff !important; border: none !important; padding: 0 0 8px 0 !important; margin-bottom: 8px !important; border-bottom: 1px solid #000 !important; }
+    .main-header-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: flex-start !important; gap: 10px !important; width: 100% !important; }
+    
+    .header-left-col { flex: 1.2 !important; }
+    
+    /* Блок QR-кода теперь по центру */
+    #print_qr_box { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; border: none !important; background: #fff !important; padding: 0 !important; margin: 0 auto !important; flex: 0 0 auto !important; }
+    #print_qr_holder { width: 65px !important; height: 65px !important; margin: 0 auto !important; }
+    #print_qr_holder img { width: 65px !important; height: 65px !important; }
+    #print_qr_label { font-size: 8px !important; color: #000 !important; margin-top: 2px !important; max-width: 90px !important; text-align: center !important; }
 
-        #print_qr_box { display: block !important; border: none !important; background: #fff !important; padding: 2px !important; margin-top: 2px !important; align-self: flex-end !important; }
-        #print_qr_holder { width: 80px !important; height: 80px !important; margin: 0 0 0 auto !important; }
-        #print_qr_holder img { width: 80px !important; height: 80px !important; }
-        #print_qr_label { font-size: 9px !important; color: #000 !important; margin-top: 2px !important; max-width: 90px !important; }
-        
-        #print_rates_corner { display: none !important; }
-        
-        .box { background: #fff !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 8px !important; }
-        .box-title { color: #000 !important; border-bottom: 1px solid #000 !important; font-size: 13px !important; margin-top: 8px !important; margin-bottom: 6px !important; padding-bottom: 2px !important; }
-        .card { background: #fff !important; border: 1px solid #bbb !important; color: #000 !important; page-break-inside: avoid; padding: 6px 8px !important; margin-bottom: 6px !important; }
-        .card-title { color: #000 !important; border: none !important; font-size: 12px !important; font-weight: bold !important; width: 100% !important; pointer-events: none !important; margin-bottom: 2px !important; padding: 0 !important; }
-        .card-body-layout { display: block !important; }
-        .print-specs-container { display: block !important; margin-bottom: 4px !important; }
-        .print-specs-title { color: #000 !important; font-size: 10px !important; border-bottom: 1px dashed #888 !important; padding-bottom: 1px !important; margin-bottom: 2px !important; }
-        .print-specs-list li { color: #222 !important; font-size: 10px !important; line-height: 1.3 !important; }
-        .print-specs-list li::before { color: #000 !important; }
-        .card-footer { border-top: 1px solid #bbb !important; color: #000 !important; font-size: 10px !important; margin-top: 2px !important; padding-top: 2px !important; }
-        .card-footer strong { color: #000 !important; }
-        
-        .res-box { background: #fff !important; border: 1px solid #bbb !important; border-left: 3px solid #000 !important; color: #000 !important; margin-top: 6px !important; margin-bottom: 6px !important; padding: 6px !important; }
-        .res-title { color: #333 !important; font-weight: bold !important; font-size: 9px !important; margin-bottom: 3px !important; }
-        .res-row { border-bottom: 1px dashed #ccc !important; color: #000 !important; padding: 2px 0 !important; font-size: 10px !important; }
-        .res-val { color: #000 !important; }
-        .res-box.blue-grad, .res-box.purple-grad { background: #fff !important; border: 1px solid #bbb !important; border-left: 3px solid #000 !important; color: #000 !important; }
-        body.report-client .internal-field { display: none !important; }
-        body.report-client .purple-grad { display: none !important; }
-    }
+    /* Правая колонка с датой и контактами */
+    .header-right-col { width: 200px !important; display: flex !important; flex-direction: column !important; gap: 4px !important; align-items: flex-end !important; flex: 0.8 !important; }
+    .contacts-stack { width: 100% !important; display: flex !important; flex-direction: column !important; gap: 4px !important; }
+    
+    .main-title-cell, .comp-cell { background: #fff !important; border: none !important; padding: 1px 0 !important; margin-bottom: 3px !important; width: 100% !important; }
+    .main-title-cell label, .comp-cell label { color: #444 !important; font-size: 7px !important; margin-bottom: 1px !important; display: block !important; }
+    .title-input { border: none !important; color: #000 !important; font-size: 13px !important; background: transparent !important; pointer-events: none !important; padding: 0 !important; width: 100% !important; }
+    .comp-cell input { border: none !important; color: #000 !important; font-size: 11px !important; background: transparent !important; pointer-events: none !important; padding: 0 !important; width: 100% !important; }
+    
+    .header-right-col input, .header-right-col .comp-cell label { text-align: right !important; }
+    
+    .header-left-col .comp-cell:has(#qr_custom_label_input), 
+    .header-left-col .comp-cell:has(#c_link) { display: none !important; }
+
+    #print_rates_corner { display: none !important; }
+    
+    /* Остальные блоки отчета */
+    .box { background: #fff !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 8px !important; }
+    .box-title { color: #000 !important; border-bottom: 1px solid #000 !important; font-size: 12px !important; margin-top: 8px !important; margin-bottom: 6px !important; padding-bottom: 2px !important; }
+    .card { background: #fff !important; border: 1px solid #bbb !important; color: #000 !important; page-break-inside: avoid; padding: 6px 8px !important; margin-bottom: 6px !important; }
+    .card-title { color: #000 !important; border: none !important; font-size: 11px !important; font-weight: bold !important; width: 100% !important; pointer-events: none !important; margin-bottom: 2px !important; padding: 0 !important; }
+    .card-body-layout { display: block !important; }
+    .print-specs-container { display: block !important; margin-bottom: 4px !important; }
+    .print-specs-title { color: #000 !important; font-size: 9px !important; border-bottom: 1px dashed #888 !important; padding-bottom: 1px !important; margin-bottom: 2px !important; }
+    .print-specs-list li { color: #222 !important; font-size: 10px !important; line-height: 1.2 !important; }
+    .print-specs-list li::before { color: #000 !important; }
+    .card-footer { border-top: 1px solid #bbb !important; color: #000 !important; font-size: 10px !important; margin-top: 2px !important; padding-top: 2px !important; }
+    .card-footer strong { color: #000 !important; }
+    
+    .res-box { background: #fff !important; border: 1px solid #bbb !important; border-left: 3px solid #000 !important; color: #000 !important; margin-top: 6px !important; margin-bottom: 6px !important; padding: 5px 8px !important; }
+    .res-title { color: #333 !important; font-weight: bold !important; font-size: 9px !important; margin-bottom: 2px !important; }
+    .res-row { border-bottom: 1px dashed #ccc !important; color: #000 !important; padding: 2px 0 !important; font-size: 10px !important; }
+    .res-val { color: #000 !important; }
+    .res-box.blue-grad, .res-box.purple-grad { background: #fff !important; border: 1px solid #bbb !important; border-left: 3px solid #000 !important; color: #000 !important; }
+    body.report-client .internal-field { display: none !important; }
+    body.report-client .purple-grad { display: none !important; }
+}
 </style>
 </head>
 <body class="report-internal">
-<div class="top-ctrl-bar">
+<<div class="top-ctrl-bar">
     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
         <div class="lang-switcher">
             <button class="lang-btn active" id="l_ua" onclick="changeLang('ua')">UA</button>
@@ -258,14 +266,16 @@
         <button class="btn btn-success" style="font-size: 25px; padding: 6px 10px;" onclick="window.print()" id="lbl_print_btn">🖨️ Сформувати звіт (PDF / Печать)</button>
     </div>
 
+    <!-- Основная сетка шапки с тремя колонками при печати -->
     <div class="main-header-grid">
+        <!-- ЛЕВАЯ КОЛОНКА -->
         <div class="header-left-col">
             <div class="main-title-cell">
                 <label id="lbl_prod_title_text">Назва виробу / замовлення</label>            
                 <input type="text" class="title-input" id="prod_title" value="" placeholder="Введіть назву виробу..." oninput="runCalc()">
             </div>
 
-           <div class="comp-cell" style="margin-bottom: 12px;">   
+            <div class="comp-cell" style="margin-bottom: 12px;">   
                <label id="lbl_c_name">Компанія-виконавець</label>
                <input type="text" id="c_name" value="" placeholder="Введіть компанію..." oninput="runCalc()">
             </div>
@@ -281,6 +291,13 @@
             </div>
         </div>
 
+        <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА (QR-код) -->
+        <div id="print_qr_box">
+            <div id="print_qr_holder"></div>
+            <div id="print_qr_label"></div>
+        </div>
+
+        <!-- ПРАВАЯ КОЛОНКА -->
         <div class="header-right-col">
             <div class="comp-cell">
                 <label id="lbl_c_date">Дата формування</label>
@@ -296,11 +313,6 @@
                     <label id="lbl_c_phone">Телефон зв'язку</label>
                     <input type="text" id="c_phone" placeholder="..." oninput="runCalc()">
                 </div>
-            </div>
-
-            <div id="print_qr_box">
-                <div id="print_qr_holder"></div>
-                <div id="print_qr_label"></div>
             </div>
         </div>
     </div>
