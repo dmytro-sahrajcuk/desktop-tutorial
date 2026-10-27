@@ -160,7 +160,6 @@
     body.hide-p-margin #p_margin_box { display: none !important; }
 
     @media (max-width: 950px) { .main-wrapper { flex-direction: column; } .col-left, .col-right { width: 100%; } }
-    
 @media print {
     body { background: #fff !important; color: #000 !important; padding: 0; font-size: 11px; }
     .main-wrapper { display: block !important; width: 100% !important; gap: 0 !important; }
@@ -168,20 +167,20 @@
     .btn, .btn-red, .card-switches, .box-title button, #base_panel_block, .report-toggle-container, .card-inputs, .top-ctrl-bar, .mode-switcher, .history-panel, .print-toggle-label, .currency-rates-panel { display: none !important; }
     .card-drill-block { display: none !important; }
     
-    /* Шапка в три колонки для заполнения пустого пространства посредине */
+    /* Идеальное выравнивание шапки в три колонки по верху */
     .header-area { background: #fff !important; border: none !important; padding: 0 0 8px 0 !important; margin-bottom: 8px !important; border-bottom: 1px solid #000 !important; }
     .main-header-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: flex-start !important; gap: 10px !important; width: 100% !important; }
     
     .header-left-col { flex: 1.2 !important; }
     
-    /* Блок QR-кода теперь по центру */
+    /* Фикс положения QR-кода, чтобы он был на одном уровне с началом шапки */
     #print_qr_box { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; border: none !important; background: #fff !important; padding: 0 !important; margin: 0 auto !important; flex: 0 0 auto !important; }
-    #print_qr_holder { width: 65px !important; height: 65px !important; margin: 0 auto !important; }
-    #print_qr_holder img { width: 65px !important; height: 65px !important; }
-    #print_qr_label { font-size: 8px !important; color: #000 !important; margin-top: 2px !important; max-width: 90px !important; text-align: center !important; }
+    #print_qr_holder { width: 60px !important; height: 60px !important; margin: 0 auto !important; }
+    #print_qr_holder img { width: 60px !important; height: 60px !important; }
+    #print_qr_label { font-size: 8px !important; color: #000 !important; margin-top: 2px !important; max-width: 80px !important; text-align: center !important; }
 
-    /* Правая колонка с датой и контактами */
-    .header-right-col { width: 200px !important; display: flex !important; flex-direction: column !important; gap: 4px !important; align-items: flex-end !important; flex: 0.8 !important; }
+    /* Правая колонка */
+    .header-right-col { width: 190px !important; display: flex !important; flex-direction: column !important; gap: 4px !important; align-items: flex-end !important; flex: 0.8 !important; }
     .contacts-stack { width: 100% !important; display: flex !important; flex-direction: column !important; gap: 4px !important; }
     
     .main-title-cell, .comp-cell { background: #fff !important; border: none !important; padding: 1px 0 !important; margin-bottom: 3px !important; width: 100% !important; }
